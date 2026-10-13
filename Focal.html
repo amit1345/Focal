@@ -1,0 +1,1238 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Focal</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap">
+<style>
+/* Layout: sticky top bar; left rail on desktop, bottom tab bar on phones; one calm column per tab.
+   Main colour is a light sky blue, secondary is white over a faintly blue-grey ground. */
+:root{
+  --blue:#5CC0F8; --blue-edge:#2F9CDD; --blue-ink:#06324E; --blue-tint:#E4F4FD; --blue-text:#1479B8; --blue-deep:#2F8FD0;
+  --bg:#F3F6F8; --surface:#FFFFFF; --surface-2:#EBF0F3; --line:#DCE3E8; --ink:#25313B; --muted:#66737F;
+  --gold:#F4B23C; --gold-edge:#C98A14; --good:#1F8F52; --good-bg:#DDF5E7; --bad:#C93E37; --bad-bg:#FCE3E1;
+  --c-night:#2B3D57; --c-blue:#6C8FD6; --c-gold:#F6C453; --c-day:#BFE6FB;
+  --shadow:0 1px 0 rgba(20,40,60,.04),0 8px 22px rgba(20,60,90,.08);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --blue-tint:#15303F; --blue-text:#7CCBFA; --blue-deep:#2A86C0; --blue-edge:#2A86C0;
+  --bg:#0F161C; --surface:#18222B; --surface-2:#202C37; --line:#2B3946; --ink:#E7EDF2; --muted:#9AA8B4;
+  --good:#46C97E; --good-bg:#12331F; --bad:#F06B64; --bad-bg:#3A1A18;
+  --c-night:#16213A; --c-blue:#3E5C9E; --c-gold:#D9A53A; --c-day:#2D5873; --shadow:0 8px 22px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --blue-tint:#15303F; --blue-text:#7CCBFA; --blue-deep:#2A86C0; --blue-edge:#2A86C0;
+  --bg:#0F161C; --surface:#18222B; --surface-2:#202C37; --line:#2B3946; --ink:#E7EDF2; --muted:#9AA8B4;
+  --good:#46C97E; --good-bg:#12331F; --bad:#F06B64; --bad-bg:#3A1A18;
+  --c-night:#16213A; --c-blue:#3E5C9E; --c-gold:#D9A53A; --c-day:#2D5873; --shadow:0 8px 22px rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:700;font-size:16px;line-height:1.45}
+h1,h2,h3,.disp{font-family:Fredoka,Nunito,system-ui,sans-serif;font-weight:600;line-height:1.15;margin:0;text-wrap:balance}
+h2{font-size:1.35rem} h3{font-size:1.1rem}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--blue-text);outline-offset:2px}
+.muted{color:var(--muted);font-weight:700}
+.ic{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic.fill{fill:currentColor;stroke:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:2px solid var(--line)}
+.top-in{max-width:1100px;margin:auto;display:flex;align-items:center;gap:10px;padding:10px 16px}
+.brand{display:flex;align-items:center;gap:8px;font-size:1.5rem;color:var(--blue-text);letter-spacing:.01em}
+.spacer{flex:1}
+.chip{display:flex;align-items:center;gap:6px;font-family:Fredoka,sans-serif;font-weight:600;padding:6px 10px;border-radius:12px;border:2px solid var(--line);background:var(--surface)}
+.chip .ic{width:20px;height:20px}
+.chip.fire .ic{color:#F28A1E} .chip.xp .ic{color:var(--gold)}
+.avatar{width:40px;height:40px;border-radius:50%;border:2px solid var(--line);overflow:hidden;background:var(--blue-tint);display:grid;place-items:center;color:var(--blue-text)}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar.sm{width:36px;height:36px;flex:none}
+
+/* shell + nav */
+.shell{max-width:1100px;margin:auto;display:block}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;gap:4px;background:var(--surface);border-top:2px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:14px;color:var(--muted);font-size:.72rem;font-weight:800}
+.nav button.on{color:var(--blue-text);background:var(--blue-tint);box-shadow:inset 0 0 0 2px var(--blue)}
+.main{padding:16px 16px 120px;min-width:0}
+.view[hidden]{display:none}
+@media (min-width:900px){
+  .shell{display:grid;grid-template-columns:210px minmax(0,1fr);gap:8px}
+  .nav{position:sticky;top:76px;bottom:auto;left:auto;right:auto;flex-direction:column;align-self:start;border:0;background:none;padding:18px 8px;gap:6px}
+  .nav button{flex-direction:row;gap:14px;font-size:1rem;padding:12px 14px;text-transform:uppercase;letter-spacing:.06em;justify-content:flex-start}
+  .main{padding-bottom:48px}
+}
+
+/* generic parts */
+.card{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:16px;min-width:0}
+.stack{display:grid;gap:16px}
+.row{display:flex;align-items:center;gap:12px;min-width:0}
+.row.wrap{flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--blue);color:var(--blue-ink);font-family:Fredoka,sans-serif;font-weight:600;font-size:1rem;letter-spacing:.04em;text-transform:uppercase;padding:13px 20px;border-radius:16px;box-shadow:0 4px 0 var(--blue-edge);transition:transform .08s,box-shadow .08s;text-align:center}
+.btn:hover{filter:brightness(1.04)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--blue-edge)}
+.btn.ghost{background:var(--surface);color:var(--blue-text);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+.btn.ghost:active{box-shadow:0 1px 0 var(--line)}
+.btn.sm{padding:8px 14px;font-size:.85rem;border-radius:12px;box-shadow:0 3px 0 var(--blue-edge)}
+.btn.sm.ghost{box-shadow:0 3px 0 var(--line)}
+.btn.danger{background:var(--bad);color:#fff;box-shadow:0 4px 0 #8f2b26}
+.btn[disabled]{background:var(--surface-2);color:var(--muted);box-shadow:0 4px 0 var(--line);cursor:not-allowed;filter:none}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;background:var(--blue-tint);color:var(--blue-text);font-size:.8rem;font-weight:800}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface)}
+.seg button{padding:8px 16px;font-weight:800;color:var(--muted)}
+.seg button.on{background:var(--blue);color:var(--blue-ink)}
+label.f{display:grid;gap:6px;font-size:.85rem;color:var(--muted);font-weight:800}
+input[type=text],input[type=number],input[type=date],select,textarea{font:inherit;font-weight:700;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:70px}
+.form-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.empty{display:grid;justify-items:center;gap:10px;text-align:center;padding:26px 12px;color:var(--muted)}
+.banner{background:var(--blue-tint);border:2px solid var(--blue);border-radius:16px;padding:12px 14px;margin-bottom:16px;color:var(--ink)}
+
+/* learn */
+.learn{display:grid;gap:18px}
+.rail{display:grid;gap:14px;grid-template-columns:1fr 1fr;order:-1;align-content:start}
+.rail .board{display:none}
+@media (min-width:900px){
+  .learn{grid-template-columns:minmax(0,1fr) 300px}
+  .rail{grid-template-columns:1fr;order:0;position:sticky;top:76px;align-self:start}
+  .rail .board{display:block}
+}
+.pathcol{max-width:520px;width:100%;margin:0 auto;min-width:0}
+.unit{background:var(--blue);color:var(--blue-ink);border-radius:20px;padding:14px 18px;box-shadow:0 4px 0 var(--blue-edge);display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px}
+.unit .u-k{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:800;opacity:.8}
+.unit h2{font-size:1.5rem}
+.unit .u-s{font-weight:700;opacity:.85;font-size:.92rem}
+.unit .u-c{font-family:Fredoka,sans-serif;font-size:1.1rem;background:rgba(255,255,255,.55);padding:6px 12px;border-radius:12px}
+.path{display:flex;flex-direction:column;align-items:center;gap:30px;padding:30px 0 22px;overflow:hidden}
+.node{position:relative;display:grid;justify-items:center;gap:6px;width:130px}
+.nbtn{width:76px;height:72px;border-radius:50%;display:grid;place-items:center;color:#fff;transition:transform .08s,box-shadow .08s}
+.nbtn .ic{width:32px;height:32px;stroke-width:2.6}
+.nbtn.done{background:var(--blue-deep);box-shadow:0 6px 0 #1F6BA3}
+.nbtn.cur{background:var(--blue);color:var(--blue-ink);box-shadow:0 6px 0 var(--blue-edge),0 0 0 8px var(--blue-tint),0 0 0 10px var(--blue)}
+.nbtn.lock{background:var(--surface-2);color:var(--muted);box-shadow:0 6px 0 var(--line);cursor:not-allowed}
+.nbtn:not(.lock):active{transform:translateY(4px);box-shadow:0 2px 0 var(--blue-edge)}
+.nlabel{font-family:Fredoka,sans-serif;font-size:.95rem;text-align:center}
+.nstars{display:flex;gap:2px}
+.nstars .ic{width:15px;height:15px;color:var(--gold)}
+.nstars .ic.off{color:var(--line)}
+.bubble{position:absolute;top:-34px;left:50%;transform:translateX(-50%);background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:3px 12px;font-family:Fredoka,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--blue-text);animation:bob 1.6s ease-in-out infinite;white-space:nowrap}
+@keyframes bob{50%{transform:translateX(-50%) translateY(-4px)}}
+.goal{display:flex;align-items:center;gap:12px}
+.goal .num{font-family:Fredoka,sans-serif;font-size:1.5rem;line-height:1}
+.goal .lab{font-size:.8rem;color:var(--muted)}
+.lb-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:2px solid var(--surface-2)}
+.lb-row:first-of-type{border-top:0}
+.lb-n{font-family:Fredoka,sans-serif;width:22px;text-align:center;color:var(--muted)}
+.lb-xp{font-family:Fredoka,sans-serif;color:var(--blue-text)}
+
+/* overlays */
+.ov{position:fixed;inset:0;z-index:60;background:var(--surface);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.ov-top{display:flex;align-items:center;gap:14px;padding:12px 16px;width:100%;max-width:760px;margin:0 auto}
+.x{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:var(--muted)}
+.x:hover{background:var(--surface-2)}
+.bar{flex:1;height:16px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--blue);border-radius:99px;transition:width .3s;box-shadow:inset 0 -4px 0 rgba(255,255,255,.25)}
+.ov-body{flex:1;overflow:auto;padding:10px 16px 24px;width:100%;max-width:760px;margin:0 auto;min-width:0}
+.ov-foot{border-top:2px solid var(--line);padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px))}
+.ov-foot.good{background:var(--good-bg);border-color:transparent} .ov-foot.bad{background:var(--bad-bg);border-color:transparent}
+.foot-in{max-width:760px;margin:0 auto;display:flex;gap:14px;align-items:center;justify-content:space-between}
+.foot-in .msg{min-width:0;flex:1}
+.foot-in .msg b{font-family:Fredoka,sans-serif;font-size:1.2rem;display:block}
+.good .msg b{color:var(--good)} .bad .msg b{color:var(--bad)}
+.foot-in .msg span{font-size:.92rem;font-weight:700}
+.teach{display:grid;gap:18px;justify-items:center;text-align:center;padding-top:8px}
+.teach h1{font-size:1.6rem}
+.teach p{max-width:46ch;font-size:1.05rem}
+.ill{width:100%;max-width:380px;background:var(--blue-tint);border-radius:22px;padding:10px}
+.ill svg{width:100%;height:auto;display:block}
+.q h1{font-size:1.5rem;margin:6px 0 18px}
+.opts{display:grid;gap:12px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 16px;border:2px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:0 3px 0 var(--line);font-weight:800;font-size:1.05rem}
+.opt .k{width:28px;height:28px;border:2px solid var(--line);border-radius:8px;display:grid;place-items:center;font-size:.85rem;color:var(--muted);flex:none}
+.opt:hover{background:var(--surface-2)}
+.opt.sel{border-color:var(--blue);background:var(--blue-tint);box-shadow:0 3px 0 var(--blue-edge)}
+.opt.sel .k{border-color:var(--blue);color:var(--blue-text)}
+.opt.good{border-color:var(--good);background:var(--good-bg);box-shadow:0 3px 0 var(--good)}
+.opt.bad{border-color:var(--bad);background:var(--bad-bg);box-shadow:0 3px 0 var(--bad)}
+.opt[disabled]{cursor:default}
+.match{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.match .col{display:grid;gap:12px;align-content:start}
+.opt.lock{opacity:.55;border-color:var(--blue);box-shadow:none}
+.order-line{min-height:62px;border:2px dashed var(--line);border-radius:16px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.order-bank{display:flex;flex-wrap:wrap;gap:8px}
+.tok{padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:0 3px 0 var(--line);font-family:Fredoka,sans-serif;font-size:1.05rem}
+.tok.used{visibility:hidden}
+.done-screen{display:grid;gap:16px;justify-items:center;text-align:center;padding-top:26px}
+.done-screen h1{font-size:2rem}
+.stats{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.stat{border:2px solid var(--line);border-radius:16px;min-width:110px;overflow:hidden;background:var(--surface)}
+.stat b{display:block;background:var(--blue);color:var(--blue-ink);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;padding:4px 8px}
+.stat span{display:block;padding:10px;font-family:Fredoka,sans-serif;font-size:1.4rem}
+.big-stars{display:flex;gap:6px}
+.big-stars .ic{width:46px;height:46px;color:var(--gold)} .big-stars .ic.off{color:var(--line)}
+
+/* games */
+.games{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.gcard{display:grid;gap:12px;align-content:start}
+.gart{height:110px;border-radius:14px;background:var(--blue-tint);display:grid;place-items:center;overflow:hidden}
+.pv{position:relative;width:100%;aspect-ratio:16/10;border-radius:18px;overflow:hidden;background:#000}
+.pv .lay{position:absolute;inset:0}
+.pv .lay svg{width:100%;height:100%;display:block}
+.pv .grain{position:absolute;inset:0;pointer-events:none;mix-blend-mode:overlay}
+.stepper{display:grid;grid-template-columns:96px 1fr 70px;align-items:center;gap:10px}
+.stepper input[type=range]{width:100%;accent-color:var(--blue-deep)}
+.stepper .v{font-family:Fredoka,sans-serif;text-align:right;font-size:1.05rem}
+.meter{position:relative;height:14px;border-radius:99px;background:linear-gradient(90deg,#3D4F78,#7DB8E8 40%,#7DB8E8 60%,#F6E3A1);margin:6px 0}
+.meter i{position:absolute;top:-5px;width:6px;height:24px;border-radius:4px;background:var(--ink);transform:translateX(-3px);transition:left .15s}
+.goalrow{display:flex;gap:8px;align-items:center;font-size:.95rem}
+.goalrow .ic{width:20px;height:20px}
+.goalrow.ok{color:var(--good)} .goalrow.no{color:var(--muted)}
+.fsvg{width:100%;height:auto;display:block;border-radius:18px;touch-action:none;cursor:grab;background:var(--surface-2)}
+.timer{height:12px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.timer i{display:block;height:100%;background:var(--gold);width:100%}
+.tfbig{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tfbig .btn{padding:20px}
+
+/* spots */
+.sunbar{height:26px;border-radius:99px;margin:10px 0 4px;border:2px solid var(--line)}
+.sun-list{display:grid;gap:8px;margin-top:10px}
+.sun-row{display:flex;align-items:center;gap:10px}
+.sw{width:14px;height:14px;border-radius:50%;flex:none}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{padding:7px 14px;border-radius:99px;border:2px solid var(--line);background:var(--surface);font-weight:800}
+.chips button.on{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+.mis{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-top:2px solid var(--surface-2)}
+.mis:first-child{border-top:0}
+.cb{width:30px;height:30px;border-radius:10px;border:2px solid var(--line);display:grid;place-items:center;flex:none;background:var(--surface);color:transparent}
+.cb.on{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+.cb .ic{width:18px;height:18px;stroke-width:3}
+.spot{display:grid;gap:6px;padding:12px 0;border-top:2px solid var(--surface-2)}
+.spot:first-child{border-top:0}
+
+/* gallery */
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.ph{position:relative;aspect-ratio:1;border-radius:16px;overflow:hidden;border:2px solid var(--line);background:var(--surface-2);display:block;width:100%}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph .cap{position:absolute;left:0;right:0;bottom:0;padding:18px 10px 8px;background:linear-gradient(transparent,rgba(5,20,35,.75));color:#fff;text-align:left;font-size:.85rem}
+.modal{background:rgba(10,24,36,.55);align-items:center;justify-content:center;padding:16px}
+.sheet{background:var(--surface);border-radius:24px;width:100%;max-width:560px;max-height:calc(100% - 8px);overflow:auto;padding:18px;display:grid;gap:14px;box-shadow:var(--shadow)}
+.sheet img.big{width:100%;max-height:52vh;object-fit:contain;border-radius:14px;background:var(--surface-2);display:block}
+.fb{background:var(--blue-tint);border-radius:16px;padding:12px 14px;white-space:pre-wrap;font-weight:700}
+
+/* friends + profile */
+.pers{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:2px solid var(--surface-2)}
+.pers:first-child{border-top:0}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px}
+.badge{display:grid;justify-items:center;gap:6px;text-align:center;font-size:.85rem;padding:12px 6px;border-radius:16px;border:2px solid var(--line)}
+.badge .disc{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:var(--blue-ink)}
+.badge.off{opacity:.55} .badge.off .disc{background:var(--surface-2);color:var(--muted)}
+.goal-opts{display:flex;gap:8px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 70px);transform:translateX(-50%);z-index:90;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:14px;font-family:Fredoka,sans-serif;max-width:calc(100% - 32px);text-align:center}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="top"><div class="top-in">
+  <div class="brand"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="7" width="28" height="20" rx="6" fill="var(--blue)"/><rect x="8" y="3.5" width="9" height="6" rx="2" fill="var(--blue-edge)"/><circle cx="16" cy="17" r="7" fill="var(--surface)"/><circle cx="16" cy="17" r="3.6" fill="var(--blue-deep)"/><circle cx="17.4" cy="15.6" r="1.1" fill="var(--surface)"/></svg><span class="disp">Focal</span></div>
+  <div class="spacer"></div>
+  <div class="chip fire" id="chipStreak" title="Day streak"></div>
+  <div class="chip xp" id="chipXp" title="Total XP"></div>
+  <button class="avatar" id="btnProfile" data-a="tab" data-t="profile" aria-label="Your profile and account"></button>
+</div></header>
+
+<div class="shell">
+  <nav class="nav" id="nav" aria-label="Sections"></nav>
+  <main class="main">
+    <div id="banner"></div>
+    <section id="v-learn" class="view"><div class="learn"><div class="pathcol" id="path"></div><aside class="rail" id="rail"></aside></div></section>
+    <section id="v-games" class="view" hidden>
+      <div class="stack"><div><h2>Games</h2><p class="muted">Practice what you learned. The first two plays of each game every day earn XP.</p></div><div class="games" id="gameList"></div></div>
+    </section>
+    <section id="v-spots" class="view" hidden>
+      <div class="stack">
+        <div><h2>Spots</h2><p class="muted">Plan your light, pick a mission for where you are, and keep a list of places worth shooting.</p></div>
+        <div class="card stack" id="sunCard">
+          <h3>Light planner</h3>
+          <div class="form-grid">
+            <label class="f">City<select id="cityPick"></select></label>
+            <label class="f">Date<input type="date" id="dateIn"></label>
+            <label class="f cust" hidden>Latitude<input type="number" id="latIn" step="0.0001" placeholder="41.8781"></label>
+            <label class="f cust" hidden>Longitude<input type="number" id="lngIn" step="0.0001" placeholder="-87.6298"></label>
+          </div>
+          <div id="sunOut"></div>
+        </div>
+        <div class="card stack"><h3>Missions by place</h3><div class="chips" id="placeChips"></div><div id="missionOut"></div></div>
+        <div class="card stack">
+          <h3>Photo spots</h3>
+          <form id="spotForm" class="stack" autocomplete="off">
+            <div class="form-grid">
+              <label class="f">Name<input type="text" id="spName" maxlength="60" placeholder="Pier at sunrise" required></label>
+              <label class="f">Type<select id="spType"><option>City</option><option>Nature</option><option>Water</option><option>Architecture</option><option>Indoors</option><option>Other</option></select></label>
+              <label class="f">Best time<select id="spWhen"><option>Sunrise</option><option>Morning</option><option>Midday</option><option selected>Golden hour</option><option>Blue hour</option><option>Night</option></select></label>
+              <label class="f">Latitude (optional)<input type="number" id="spLat" step="0.0001"></label>
+              <label class="f">Longitude (optional)<input type="number" id="spLng" step="0.0001"></label>
+            </div>
+            <label class="f">Notes<textarea id="spNote" maxlength="240" placeholder="Where to stand, what to shoot"></textarea></label>
+            <div><button class="btn sm" type="submit">Save spot</button></div>
+          </form>
+          <div id="spotList"></div>
+        </div>
+      </div>
+    </section>
+    <section id="v-gallery" class="view" hidden>
+      <div class="stack">
+        <div class="row wrap"><div class="grow"><h2>Gallery</h2><p class="muted">Share your best shots with friends and get coaching on them.</p></div><button class="btn" data-a="addphoto">Add photo</button></div>
+        <div><div class="seg" role="tablist"><button data-a="galtab" data-t="mine" id="gtMine" class="on">My photos</button><button data-a="galtab" data-t="friends" id="gtFriends">Friends</button></div></div>
+        <div id="galGrid"></div>
+      </div>
+    </section>
+    <section id="v-friends" class="view" hidden>
+      <div class="stack">
+        <div><h2>Friends</h2><p class="muted">Add people and climb the weekly leaderboard together.</p></div>
+        <div class="card stack"><h3>Add a friend</h3><input type="text" id="frSearch" placeholder="Search by name" autocomplete="off" aria-label="Search people by name"><div id="frResults"></div></div>
+        <div class="card" id="frReq" hidden></div>
+        <div class="card" id="frBoard"></div>
+      </div>
+    </section>
+    <section id="v-profile" class="view" hidden><div id="profOut" class="stack"></div></section>
+  </main>
+</div>
+
+<div id="player" class="ov" hidden></div>
+<div id="gamelayer" class="ov" hidden></div>
+<div id="modal" class="ov modal" hidden></div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+(()=>{
+'use strict';
+/* ================= helpers ================= */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const pad=n=>String(n).padStart(2,'0');
+const todayKey=(d=new Date())=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const yesterdayKey=()=>{const d=new Date();d.setDate(d.getDate()-1);return todayKey(d)};
+const weekKey=()=>{const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));return todayKey(d)};
+const IC={
+ camera:'<path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/>',
+ games:'<rect x="3" y="7" width="18" height="11" rx="4"/><path d="M8 10v5M5.5 12.5h5"/><circle cx="15.5" cy="11.5" r=".7"/><circle cx="18" cy="14" r=".7"/>',
+ pin:'<path d="M12 21s-7-6.2-7-11a7 7 0 1 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+ image:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M4 18l5-5 4 4 3-3 4 4"/>',
+ users:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.5 0 4.5 2 4.5 4.5"/>',
+ flame:'<path d="M12 2c1.2 4 6 6 6 11a6 6 0 0 1-12 0c0-2.4 1.1-3.8 2.3-4.8.2 1.6 1 2.4 1.9 2.7C9.6 8.2 10.4 4.6 12 2z"/>',
+ bolt:'<path d="M13.5 2L4 14h6.5l-1 8L20 9.5h-6.8z"/>',
+ check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+ x:'<path d="M6 6l12 12M18 6L6 18"/>',
+ lock:'<rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+ star:'<path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ trash:'<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>'
+};
+const ico=(n,c='')=>`<svg class="ic ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+const stars=(n)=>`<div class="nstars" aria-label="${n} of 3 stars">${[1,2,3].map(i=>ico('star','fill'+(i<=n?'':' off'))).join('')}</div>`;
+let toastT;
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2400)}
+const validImg=u=>typeof u==='string'&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(u)&&u.length<260000;
+const finite=v=>typeof v==='number'&&isFinite(v);
+
+/* ================= content ================= */
+const UNITS=[
+ {n:'Exposure',s:'Aperture, shutter speed and ISO',l:'Beginner'},
+ {n:'Composition',s:'Where things go in the frame',l:'Beginner'},
+ {n:'Light',s:'Time of day, direction and colour',l:'Beginner'},
+ {n:'Focus and depth',s:'Sharpness, blur and lenses',l:'Intermediate'},
+ {n:'Camera craft',s:'Steady hands, metering and timing',l:'Intermediate'},
+ {n:'Genres',s:'Portraits, landscapes, street and more',l:'Intermediate'},
+ {n:'Creative eye',s:'Reflections, panning, patterns and trails',l:'Advanced'},
+ {n:'Gear',s:'Phones, lenses, filters and flash',l:'Advanced'},
+ {n:'Editing',s:'RAW, crops, tone and colour',l:'Advanced'},
+ {n:'Storytelling',s:'Series, critique and your portfolio',l:'Pro'}];
+const LESSONS=[
+{id:'aperture',u:0,t:'Aperture',ill:'aperture',
+ cards:[['Aperture is the opening in your lens','It is written as an f-number such as f/1.8 or f/16. Think of the pupil of an eye: it widens in the dark and narrows in bright light.'],
+        ['Small number, big opening','A small f-number like f/1.8 is a wide opening. It lets in lots of light and blurs the background. A big f-number like f/16 is a narrow opening. It lets in less light and keeps more of the scene sharp.']],
+ qs:[{k:'mc',q:'Which aperture lets in the most light?',o:['f/1.8','f/5.6','f/11','f/22'],a:0,w:'The smallest f-number is the widest opening.'},
+     {k:'tf',q:'A bigger f-number means a bigger lens opening.',a:false,w:'It is the other way round. f/16 is much narrower than f/2.'},
+     {k:'mc',q:'You want a portrait with a soft, blurry background. Which aperture?',o:['f/1.8','f/8','f/16','f/22'],a:0,w:'A wide opening gives a shallow depth of field.'},
+     {k:'match',q:'Match the setting to the result',p:[['f/1.8','Blurry background'],['f/5.6','A balanced middle'],['f/16','Sharp front to back']],w:'Wide openings blur the background. Narrow ones keep everything in focus.'}]},
+{id:'shutter',u:0,t:'Shutter speed',ill:'shutter',
+ cards:[['How long the sensor sees light','Shutter speed is written as a fraction of a second, like 1/250. The bigger the bottom number, the faster the shutter.'],
+        ['Freeze it or blur it','Fast speeds such as 1/1000 freeze motion. Slow speeds such as 1/4 blur it, which makes waterfalls silky but needs a tripod. Handheld, aim for 1 over your focal length: a 50 mm lens wants 1/50 or faster.']],
+ qs:[{k:'mc',q:'Which shutter speed freezes a sprinting runner?',o:['1/1000','1/60','1/15','1/2'],a:0,w:'Fast shutters freeze motion.'},
+     {k:'tf',q:'A slower shutter speed lets in more light.',a:true,w:'The sensor stays exposed for longer, so more light arrives.'},
+     {k:'mc',q:'You want silky waterfall water. What do you use?',o:['1/2 s on a tripod','1/1000 handheld','1/250 handheld','1/4000 on a tripod'],a:0,w:'A long exposure smooths moving water. The tripod keeps everything else sharp.'},
+     {k:'mc',q:'Handheld with a 100 mm lens, the slowest safe speed is about:',o:['1/100','1/15','1/4','1/2'],a:0,w:'The classic rule is 1 over the focal length.'},
+     {k:'order',q:'Tap the speeds from fastest to slowest',i:['1/1000','1/250','1/30','1/2'],w:'The bigger the bottom number, the faster the shutter.'}]},
+{id:'iso',u:0,t:'ISO',ill:'iso',
+ cards:[['How sensitive the sensor is','Low ISO such as 100 gives clean, detailed pictures but needs plenty of light. High ISO such as 3200 brightens dark scenes but adds grainy noise.'],
+        ['Raise ISO last','When a scene is dark, first open the aperture or slow the shutter. Raise ISO only when those two are already as far as you can take them.']],
+ qs:[{k:'mc',q:'Bright sunny day. Which ISO makes the cleanest picture?',o:['100','800','3200','12800'],a:0,w:'With lots of light you can use the lowest ISO.'},
+     {k:'tf',q:'A higher ISO adds more noise to the picture.',a:true,w:'Noise grows as you amplify the signal.'},
+     {k:'mc',q:'Indoors the photo is dark. The aperture is wide open and the shutter cannot go slower. What now?',o:['Raise ISO','Close the aperture','Use a faster shutter','Lower ISO'],a:0,w:'ISO is the last lever to pull.'},
+     {k:'mc',q:'Going from ISO 400 to ISO 800 does what?',o:['Makes the image one stop brighter','Makes it twice as sharp','Makes it one stop darker','Changes the depth of field'],a:0,w:'Each doubling of ISO is one stop of brightness.'}]},
+{id:'triangle',u:0,t:'Exposure triangle',ill:'triangle',
+ cards:[['Three settings, one balance','Aperture, shutter speed and ISO all change brightness. One step that doubles or halves the light is called a stop.'],
+        ['Trade one for another','Open the aperture one stop (f/4 to f/2.8) and you double the light. Make the shutter one stop faster (1/125 to 1/250) and you halve it. Do both and the brightness stays the same.']],
+ qs:[{k:'mc',q:'You open the aperture by one stop. To keep the same brightness the shutter must be:',o:['Twice as fast','Twice as slow','Unchanged','Four times as slow'],a:0,w:'More light in from the lens, so less time for the sensor.'},
+     {k:'mc',q:'Which change makes a picture brighter?',o:['A slower shutter speed','A bigger f-number','A lower ISO','A faster shutter speed'],a:0,w:'A slower shutter collects light for longer.'},
+     {k:'mc',q:'f/8 at 1/125 gives the same exposure as:',o:['f/5.6 at 1/250','f/5.6 at 1/60','f/11 at 1/250','f/8 at 1/250'],a:0,w:'f/5.6 is one stop wider, and 1/250 is one stop faster. They cancel out.'},
+     {k:'tf',q:'Changing one of the three settings never affects the others.',a:false,w:'They share one budget of light. Change one and you usually rebalance another.'},
+     {k:'match',q:'Match each setting to its side effect',p:[['Aperture','Depth of field'],['Shutter speed','Motion blur'],['ISO','Noise']],w:'Each setting has a creative side effect beyond brightness.'}]},
+{id:'thirds',u:1,t:'Rule of thirds',ill:'thirds',
+ cards:[['Split the frame into nine','Imagine two vertical and two horizontal lines. Put the subject on a line, or on a point where lines cross.'],
+        ['Place the horizon too','A dramatic sky deserves two thirds of the frame, so the horizon sits on the lower line. A striking foreground gets two thirds, so the horizon sits on the upper line.']],
+ qs:[{k:'mc',q:'The points where the grid lines cross are called:',o:['Power points','Dead zones','Vanishing points','Focus stops'],a:0,w:'They are natural resting places for the eye.'},
+     {k:'tf',q:'Putting a subject in the exact centre is always a mistake.',a:false,w:'Centred shots can be strong, especially symmetrical ones.'},
+     {k:'mc',q:'The sky is full of dramatic clouds. Where should the horizon go?',o:['On the lower third line','Dead centre','At the very top','At the very bottom'],a:0,w:'That gives the sky two thirds of the frame.'},
+     {k:'mc',q:'A person looks to the right of the frame. Where should you leave extra space?',o:['On the right, in front of them','On the left, behind them','No extra space','Above their head only'],a:0,w:'Looking room makes the picture feel natural.'}]},
+{id:'lines',u:1,t:'Leading lines',ill:'lines',
+ cards:[['Roads, rails and rivers','Lines in a scene pull the eye along them. Use them to point at your subject.'],
+        ['Curves work too','Winding paths and S-shaped rivers lead the eye slowly through the picture. Lines that start near the edge of the frame and run inward work best.']],
+ qs:[{k:'mc',q:'What do leading lines do?',o:['Guide the eye toward the subject','Make the photo sharper','Add more light','Remove distractions'],a:0,w:'They steer attention.'},
+     {k:'mc',q:'Which is the best leading line for a mountain photo?',o:['A winding road toward the peak','A fence across the frame','A pile of rubbish','A blank wall'],a:0,w:'It starts near you and ends at the subject.'},
+     {k:'tf',q:'Leading lines must be perfectly straight.',a:false,w:'Curves and zigzags lead the eye very well.'},
+     {k:'mc',q:'Where do leading lines work best?',o:['Starting at the edge and running toward the subject','Running out of the frame','Crossing the subject','Covering the subject'],a:0,w:'Lines should end at something worth looking at.'}]},
+{id:'depth',u:1,t:'Framing and depth',ill:'frame',
+ cards:[['Frames inside the frame','Doorways, arches, windows and branches can wrap around your subject and hold the eye on it.'],
+        ['Three layers','Add something in the foreground, keep the subject in the middle, and let a background sit behind. Layers give a flat picture a sense of depth.']],
+ qs:[{k:'mc',q:'Which is a natural frame?',o:['An archway around a person','A blank sky','A close-up of grass','A blurry thumb'],a:0,w:'It surrounds the subject and points at it.'},
+     {k:'mc',q:'Why add something in the foreground?',o:['It creates depth','It brightens the scene','It freezes motion','It lowers ISO'],a:0,w:'Near, middle and far layers feel three dimensional.'},
+     {k:'tf',q:'A messy background does not matter if the subject is sharp.',a:false,w:'Clutter competes with the subject for attention.'},
+     {k:'order',q:'Tap the layers from nearest to farthest',i:['Foreground flowers','Person','Hills','Sky'],w:'Layering from near to far builds depth.'}]},
+{id:'space',u:1,t:'Space and balance',ill:'space',
+ cards:[['Empty space is a tool','Negative space is calm, empty area around the subject. It makes a small subject feel important and gives the picture room to breathe.'],
+        ['Balance a heavy side','If one side holds a big, dark object, a small bright object on the other side can balance it. Symmetry is the other option: mirror both sides on purpose.']],
+ qs:[{k:'mc',q:'Negative space is:',o:['Calm empty area around the subject','Underexposed shadow','A noisy background','The border of a print'],a:0,w:'It lets the subject stand out.'},
+     {k:'tf',q:'Every part of the frame should be filled with detail.',a:false,w:'Empty areas often make a stronger picture.'},
+     {k:'mc',q:'A big dark tree fills the left. What can balance it?',o:['A small bright subject on the right','More trees on the left','Nothing on the right','A black border'],a:0,w:'Visual weight can be balanced with contrast.'},
+     {k:'mc',q:'Symmetry works best when you place the subject:',o:['In the centre, with mirrored sides','On a random edge','Out of focus','Behind a tree'],a:0,w:'Symmetry is the one time centred is usually right.'}]},
+{id:'golden',u:2,t:'Golden hour',ill:'golden',
+ cards:[['The hour after sunrise and before sunset','The sun is low, so its light is warm, soft and travels sideways. Skin glows and shadows are long and gentle.'],
+        ['Then comes blue hour','After sunset the sky turns deep blue for a short while. City lights and sky balance nicely then, so it is great for streets and skylines.']],
+ qs:[{k:'mc',q:'Best time for a warm, soft portrait?',o:['Just before sunset','Noon','Midnight','Any time, light never matters'],a:0,w:'Low sun gives warm, flattering light.'},
+     {k:'tf',q:'Golden hour happens around midday.',a:false,w:'It is near sunrise and sunset, when the sun is low.'},
+     {k:'mc',q:'Blue hour is:',o:['Twilight with cool tones after sunset','The hour before noon','A camera mode','Light from a blue lamp'],a:0,w:'The sky is still bright enough to show detail.'},
+     {k:'mc',q:'Shadows during golden hour are usually:',o:['Long and soft','Short and hard','Missing','Blue and square'],a:0,w:'A low sun stretches shadows out.'}]},
+{id:'hardsoft',u:2,t:'Hard and soft light',ill:'hardsoft',
+ cards:[['Size of the source matters','A small, bright source such as the midday sun or a bare flash makes hard light with crisp shadows. A large or diffused source makes soft light with gentle shadows.'],
+        ['Soften it yourself','Move into shade, wait for cloud, shoot by a window or hold a thin white sheet between the sun and your subject.']],
+ qs:[{k:'mc',q:'An overcast sky gives:',o:['Soft light','Hard light','No light','Coloured light'],a:0,w:'Clouds turn the whole sky into a huge soft source.'},
+     {k:'mc',q:'Harsh noon sun on a face. What helps?',o:['Move into open shade','Move closer to the sun','Raise ISO','Shoot at f/22'],a:0,w:'Shade makes the source larger and softer.'},
+     {k:'tf',q:'Soft light is usually more flattering for faces.',a:true,w:'It hides texture and reduces harsh shadows.'},
+     {k:'match',q:'Match the source to the light',p:[['Noon sun','Hard'],['Overcast sky','Soft'],['Bare flash','Hard'],['Window light','Soft']],w:'Small and direct is hard. Large and diffused is soft.'}]},
+{id:'direction',u:2,t:'Direction of light',ill:'direction',
+ cards:[['Where the light comes from','Front light fills the subject evenly and can look flat. Side light rakes across surfaces and shows texture and shape. Back light creates glowing edges or silhouettes.'],
+        ['Walk around your subject','Moving a few steps changes the light more than any camera setting. Look at the shadows first, then pick your position.']],
+ qs:[{k:'mc',q:'Which direction shows the most texture?',o:['From the side','From the front','From the camera','No difference'],a:0,w:'Side light makes shadows that outline texture.'},
+     {k:'mc',q:'Front lighting tends to look:',o:['Flat','Dramatic','Very textured','Dark'],a:0,w:'Few shadows means little shape.'},
+     {k:'mc',q:'You want a silhouette. Expose for:',o:['The bright background','The dark subject','The ground','The lens cap'],a:0,w:'Expose for the bright sky and the subject falls to black.'},
+     {k:'tf',q:'You can change light direction by changing where you stand.',a:true,w:'Position is the quickest lighting tool you have.'}]},
+{id:'colour',u:2,t:'Colour and contrast',ill:'colour',
+ cards:[['Colours that pop','Colours opposite on the colour wheel, such as blue and orange, are complementary. Put them together and both look stronger.'],
+        ['Warm, cool and tone','Warm colours (red, orange) feel close and energetic. Cool colours (blue, green) feel calm and distant. In black and white, shape and tone do all the work.']],
+ qs:[{k:'mc',q:'The complement of blue is:',o:['Orange','Green','Purple','Teal'],a:0,w:'Blue and orange sit opposite each other.'},
+     {k:'mc',q:'Which feels closer and more energetic?',o:['Warm colours','Cool colours','Grey','Black'],a:0,w:'Warm tones seem to advance.'},
+     {k:'tf',q:'Black and white photos depend more on tone and contrast than on colour.',a:true,w:'Without colour, light and shape carry the picture.'},
+     {k:'match',q:'Match the pair to the effect',p:[['Blue and orange','Strong pop'],['Green and teal','Calm harmony'],['Red on grey','One bold accent']],w:'Contrast and harmony are both useful.'}]}
+];
+const mc=(q,o,w)=>({k:'mc',q,o,a:0,w}),tf=(q,a,w)=>({k:'tf',q,a,w}),mt=(q,p,w)=>({k:'match',q,p,w}),od=(q,i,w)=>({k:'order',q,i,w});
+const les=(id,u,t,ill,c1,c2,qs)=>({id,u,t,ill,cards:[c1,c2],qs});
+LESSONS.push(
+/* Unit 4: Focus and depth */
+les('focusmodes',3,'Focus modes','focus',['Pick the right autofocus','Single autofocus (AF-S or One-Shot) locks focus when you half-press the shutter. It suits still subjects. Continuous autofocus (AF-C or AI Servo) keeps tracking a moving subject until you shoot.'],['Put the focus point on the eyes','For people and animals, the eye is the part that must be sharp. Move your focus point there, or turn on eye detection if your camera has it. Manual focus helps when autofocus hunts, such as in the dark or at close range.'],
+ [mc('A child is running toward you. Which mode do you pick?',['Continuous autofocus','Single autofocus','Manual with no checking','Self-timer'],'Continuous mode keeps updating focus as the subject moves.'),tf('In single autofocus, half-pressing the shutter locks focus.',true,'You can then recompose while the focus stays put.'),mc('For a portrait, which part should be sharpest?',['The eyes','The ears','The shoulders','The background'],'Viewers look at eyes first.'),mt('Match the mode to the job',[['Single AF','A still landscape'],['Continuous AF','A cyclist riding past'],['Manual focus','A dark close-up scene']],'Pick the mode that suits how the subject behaves.')]),
+les('dofl',3,'Depth of field','aperture',['Three things control depth of field','Depth of field is how much of the picture looks sharp. It gets shallower with a wider aperture, a closer subject and a longer lens. It gets deeper with the opposite.'],['Landscapes need depth, portraits need less','For a landscape use f/8 to f/11 and focus about a third of the way into the scene. For a portrait use a wide aperture and stand a little way back so the face stays sharp.'],
+ [mc('Which change gives a shallower depth of field?',['Moving closer to the subject','Using f/16','Using a wider lens','Moving farther away'],'A closer focus distance makes the sharp zone thinner.'),mc('Where should you focus in a deep landscape?',['About a third into the scene','On the horizon only','On the sky','On the lens cap'],'That spreads the sharp zone in front and behind.'),tf('A longer lens at the same distance gives shallower depth of field.',true,'Longer focal lengths magnify the blur.'),od('Tap from shallowest to deepest depth of field',['f/1.8','f/4','f/8','f/16'],'A wider aperture is shallower.')]),
+les('focal',3,'Focal length','focal',['Focal length is your field of view','It is measured in millimetres. Wide lenses (16 to 35 mm) fit more in. Normal lenses (about 50 mm) feel natural. Telephoto lenses (85 mm and up) bring distant things close.'],['Match the lens to the job','Wide suits landscapes and interiors. Normal suits street and everyday shots. Short telephoto suits portraits. Long telephoto suits wildlife and sport.'],
+ [mc('Which lens fits the most into the frame?',['16 mm','50 mm','85 mm','200 mm'],'A smaller number means a wider view.'),mt('Match the lens to the job',[['16 to 24 mm','Landscapes and interiors'],['35 to 50 mm','Street and everyday'],['85 to 135 mm','Portraits'],['200 mm and up','Wildlife and sport']],'Each range has a typical use.'),tf('Zooming with the lens and walking closer give the same picture.',false,'Moving changes perspective. Zooming only changes the crop.'),mc('You are far from a bird. Which lens helps?',['200 mm or longer','16 mm','24 mm','35 mm'],'Telephoto lenses bring faraway subjects closer.')]),
+les('lensperspective',3,'Wide or tele?','focal',['Wide lenses stretch things','Close to a wide lens, objects look big and the edges can stretch. That is great for drama and for showing a place, but not always flattering for faces.'],['Telephoto lenses compress','A telephoto makes the background and subject look closer together, and gives faces natural proportions. Mountains behind a person look bigger.'],
+ [mc('Why are portraits often shot at 85 mm rather than 24 mm?',['Faces keep natural proportions','It uses less light','It adds more noise','It makes the subject smaller'],'Wide lenses stretch things close to the camera.'),tf('A wide-angle lens makes close objects look bigger.',true,'Foreground items are exaggerated.'),mc('You want a faraway mountain to look large behind your subject. Use:',['A telephoto lens','A wide-angle lens','Flash','A higher ISO'],'Telephoto compression brings the background forward.'),mc('A tiny room needs to fit in one photo. Use:',['A wide-angle lens','A telephoto lens','A longer exposure','Flash only'],'Wide angles see more.')]),
+/* Unit 5: Camera craft */
+les('steady',4,'Holding steady','shutter',['Stand like a tripod','Feet apart, elbows tucked in, camera against your face. Breathe out gently and squeeze the shutter, never stab it. Lean on a wall or post if you can.'],['Know your slowest safe speed','With no stabilisation, use 1 over the focal length. Stabilised lenses and bodies give you two to four stops of extra margin.'],
+ [mc('Which stance is steadiest?',['Elbows tucked in, feet apart','Arms stretched out','One hand, one foot','Leaning backwards'],'A compact stance reduces shake.'),tf('You should stab the shutter button quickly.',false,'Squeeze it smoothly.'),mc('With a 200 mm lens and no stabilisation, a safe speed is about:',['1/200','1/20','1/4','1/2'],'Use 1 over the focal length.'),mc('What does image stabilisation let you do?',['Use slower shutter speeds handheld','Freeze fast motion at 1/30','Raise ISO for free','Get a wider aperture'],'It counters small hand movements.')]),
+les('tripod',4,'Tripods','camera',['When to use a tripod','Use one for long exposures, low light, close-ups and careful landscape composition. It also slows you down, which helps you think about the frame.'],['Remove every wobble','Use a two second timer or a remote so pressing the button does not shake the camera. Hang a bag on the centre column in wind. Many cameras suggest turning stabilisation off on a tripod.'],
+ [mc('Why use a two second timer on a tripod?',['Pressing the button can shake the camera','It brightens the photo','It widens the aperture','It lowers ISO'],'The delay lets vibrations settle.'),mc('Which situation needs a tripod most?',['A 10 second night exposure','A sunny snapshot','A fast sports shot','A selfie'],'Long exposures need a stable camera.'),tf('Tripods can help you compose more carefully.',true,'Setting up slows you down in a good way.'),mc('Wind is shaking your tripod. What helps?',['Hang a bag from the centre column','Raise the centre column fully','Use a slower shutter','Remove a leg'],'Extra weight lowers vibration.')]),
+les('metering',4,'Metering','triangle',['How the camera reads the light','Evaluative (matrix) mode looks at the whole scene and works most of the time. Centre-weighted favours the middle. Spot reads one small area.'],['Exposure compensation','The camera aims for a mid grey, so snow comes out grey and a black cat comes out too bright. Dial in plus compensation for bright scenes and minus for dark ones.'],
+ [mc('Your snowy photo looks grey. What do you do?',['Add plus exposure compensation','Add minus compensation','Lower the ISO','Close the aperture'],'The camera is underexposing the bright scene.'),mc('Which mode reads one small area?',['Spot','Evaluative','Matrix','Auto white balance'],'Spot metering measures a tiny circle.'),tf('The camera meter aims for an average mid grey.',true,'That is why bright and dark scenes can fool it.'),mc('A backlit portrait has a dark face. Spot meter on:',['The face','The sky','The sun','The ground'],'Meter for what matters.')]),
+les('histogram',4,'The histogram','hist',['A graph of brightness','The histogram shows how many pixels are dark (left) or bright (right). A pile touching the right edge means lost highlights. A pile touching the left means lost shadows.'],['Expose to the right','Digital sensors keep the most detail in bright tones. Brighten the picture until the graph nearly touches the right edge, then pull it back in editing. Dark or bright scenes are allowed to look lopsided.'],
+ [mc('Where do highlights appear on a histogram?',['The right side','The left side','The middle only','Nowhere'],'Right is bright.'),mc('A tall spike pressed against the right edge means:',['Blown highlights','Perfect shadows','Too much noise','Low contrast'],'Detail is clipped to white.'),tf('A histogram must always look like a bell shape.',false,'A dark scene can lean left and a bright one right.'),mc('Why expose to the right?',['Brighter tones hold more detail and less noise','It adds colour','It adds blur','It saves battery'],'The sensor records more levels in the bright half.')]),
+les('wb',4,'White balance','wb',['Light has a colour','Light bulbs are orange, shade is blue, daylight is neutral. White balance tells the camera what white should look like. It is measured in kelvins: about 3200 K for bulbs, 5500 K for daylight, 7500 K for shade.'],['Auto, presets or RAW','Auto works most of the time. Presets such as Tungsten, Daylight and Cloudy give consistent results. If you shoot RAW you can change white balance later with no loss of quality.'],
+ [mc('A photo under indoor bulbs looks too orange. Set white balance to:',['Tungsten','Shade','Cloudy','Flash'],'Tungsten corrects warm bulb light.'),mc('About what temperature is daylight?',['5500 K','1500 K','12000 K','800 K'],'Midday daylight is near 5500 K.'),tf('RAW files let you change white balance after shooting.',true,'The adjustment is non-destructive.'),mt('Match the light to its look',[['Candle or bulb','Warm orange'],['Open shade','Cool blue'],['Midday sun','Neutral']],'Different sources have different colours.')]),
+les('timing',4,'Burst and timing','shutter',['Wait for the moment','Great action photos come from anticipation. Pre-focus where the subject will be, watch faces, and press just before the peak.'],['Burst mode','Hold the shutter to shoot several frames per second. Use it for sport, children and wildlife. Review afterwards and keep the best frame.'],
+ [mc('Which mode suits a diving swimmer?',['Burst','Self-timer','Long exposure','Bulb'],'Several quick frames increase your chances.'),tf('You should press the shutter after the peak action happens.',false,'There is a delay, so press just before it.'),mc('How can you prepare for a runner crossing a line?',['Pre-focus on the line','Switch to ISO 6400 only','Zoom out','Turn off the camera'],'Focus where the subject will be.'),mc('After a burst you should:',['Keep the best frame and delete the rest','Keep every frame','Print all frames','Raise the ISO'],'Culling keeps your folder clean.')]),
+/* Unit 6: Genres */
+les('portraits',5,'Portraits','frame',['Eyes, light, connection','Focus on the nearest eye, use soft light such as a window or open shade, and shoot at 50 to 135 mm. A small bright reflection in the eyes (a catchlight) makes a face feel alive.'],['Direct, do not pose','Talk while you shoot. Give easy instructions like look out of the window, then back at me. The best frames often come between poses.'],
+ [mc('Where should the focus sit in a portrait?',['The nearest eye','The hair','The hands','The background'],'Eyes carry the picture.'),mc('Which light is the most flattering for most faces?',['Soft window light','Direct noon sun','Bare flash','Light from below'],'Soft light is gentle.'),tf('A catchlight is the small reflection in the eyes.',true,'It gives life to a portrait.'),mc('Your subject looks stiff. Try:',['Talking and giving easy actions','Asking for a longer smile','Using a slower shutter','Zooming out'],'Relaxed subjects give better expressions.')]),
+les('landscapes',5,'Landscapes','thirds',['Build three layers','Start with a strong foreground, a clear middle and an interesting sky. Keep the horizon level and check the corners.'],['Use the right settings','Tripod, ISO 100, f/8 to f/11, a slow shutter if needed. Shoot at golden hour. A polarising filter deepens skies and cuts glare.'],
+ [mc('Which settings suit a landscape on a tripod?',['ISO 100, f/11','ISO 6400, f/1.8','ISO 800, f/1.4','ISO 3200, 1/4000'],'Low ISO and a narrow aperture keep detail and depth.'),mc('A polarising filter does what?',['Deepens skies and cuts glare','Adds noise','Freezes motion','Widens the lens'],'It removes polarised reflections.'),tf('A tilted horizon is usually fine in a landscape.',false,'Keep it level unless tilting is deliberate.'),mc('Why include a foreground object?',['It adds depth and a way in','It lowers ISO','It cools the colours','It speeds focus'],'Foreground draws viewers into the scene.')]),
+les('street',5,'Street photography','lines',['See and wait','Pick a good background with nice light, then wait for a person to walk into it. Stay curious and keep the camera ready. A 28 to 35 mm lens works well.'],['Be respectful','Laws and customs differ by place. Be friendly, never hide in a way that feels creepy, delete a photo if someone asks, and never photograph people in distress to exploit them.'],
+ [mc('A classic street approach is to:',['Frame a scene and wait for a person to enter','Chase people with a long lens','Use flash on strangers','Only shoot empty streets'],'Patience creates moments.'),mc('A good lens for street is about:',['28 to 35 mm','600 mm','8 mm fisheye only','1000 mm'],'It is wide enough to stay close and discreet.'),tf('You should respect people who ask you to delete a photo.',true,'Courtesy matters.'),mc('To be ready for fleeting moments, set:',['Aperture and ISO ahead of time','Exposure after the moment','A 30 second shutter','A tripod only'],'Pre-setting saves missed shots.')]),
+les('action',5,'Sport and wildlife','shutter',['Freeze fast things','Use 1/1000 or faster, continuous autofocus and burst mode. Raise ISO if you need the speed. A telephoto lens keeps you at a safe distance.'],['Respect wildlife','Never disturb or bait animals. Learn their habits, arrive early, stay quiet and keep your distance. A good photo is never worth a stressed animal.'],
+ [mc('Which shutter speed freezes a galloping horse?',['1/1000','1/60','1/8','1/2'],'Fast shutters freeze motion.'),mc('Which mix suits birds in flight?',['Continuous AF and burst','Single AF and timer','Manual and tripod','Bulb mode'],'You need tracking and several frames.'),tf('It is fine to chase wildlife to get a closer shot.',false,'Keep your distance and do not disturb animals.'),mc('Best way to get closer to an animal ethically?',['Use a longer lens','Walk towards it','Throw food','Make noise'],'Distance protects the animal.')]),
+les('macro',5,'Close-ups','focus',['Magnify small things','True macro is 1:1, so a tiny subject fills the sensor at its real size. Check your lens minimum focus distance.'],['Tiny depth of field','Even at f/11 only a sliver is sharp. Use a tripod, a remote, shade the subject for soft light and focus on the most important part, such as an insect eye.'],
+ [mc('What does 1:1 magnification mean?',['The subject is life size on the sensor','The photo is square','The lens is 1 mm','ISO is 1'],'A subject appears at real size.'),mc('Why is depth of field so shallow in close-ups?',['You are very close to the subject','The sensor is small','The shutter is slow','ISO is high'],'Close focus gives a thin sharp zone.'),tf('Focus stacking combines several shots to widen the sharp zone.',true,'Each frame is focused at a different distance.'),mc('Where should you focus on an insect?',['The eye','The tail','The leaf','The sky'],'Eyes first, as ever.')]),
+les('night',5,'Night and stars','trail',['Let in all the light you can','Use a tripod, a wide fast lens such as f/2.8, ISO 1600 to 3200 and manual focus. Focus on a bright star or distant light, then zoom in on the screen to check it.'],['Keep stars as points','The 500 rule helps: divide 500 by your focal length for the longest time before stars start to trail. At 20 mm that is about 25 seconds.'],
+ [mc('Which gear suits star photos?',['A tripod and a fast wide lens','Flash and a zoom lens','No tripod','A telephoto and a hand grip'],'Long exposures need stability and light gathering.'),mc('Using the 500 rule, a 20 mm lens allows about:',['25 seconds','2 seconds','2 minutes','1/500 s'],'500 divided by 20 is 25.'),tf('Autofocus works best on a dark night sky.',false,'Switch to manual focus.'),mc('Why raise ISO for stars?',['Exposure time is limited by star trails','It reduces noise','It widens the lens','It freezes motion'],'You cannot expose longer, so you need sensitivity.')]),
+/* Unit 7: Creative eye */
+les('reflections',6,'Reflections','camera',['Double your scene','Calm water, wet streets and glass give mirror images. Get low and close to the surface so the reflection fills more of the frame.'],['Control glare','A polarising filter reduces reflections you do not want, and can strengthen the ones you do. Wait for still air so ripples do not break the mirror.'],
+ [mc('To capture a lake reflection, wait for:',['Calm air','Strong wind','A slow shutter only','Noon sun'],'Ripples break reflections.'),mc('Which position makes the reflection larger?',['Low and close to the water','High on a hill','Far from the water','Behind a tree'],'A low angle shows more of the mirrored scene.'),tf('Reflections can only be found on lakes.',false,'Puddles, windows and sunglasses work too.'),mc('A polarising filter helps to:',['Control reflections','Freeze action','Cool white balance','Add flash'],'It cuts or boosts reflected light.')]),
+les('panning',6,'Panning','shutter',['Follow the subject','Pick a slow shutter such as 1/30, follow the subject smoothly with your body, press the shutter while still moving and keep following afterwards.'],['Sharp subject, streaked background','Turn from the hips with feet planted. Cars, cyclists and runners are great practice. Expect many misses before a keeper.'],
+ [mc('Which shutter speed suits panning a cyclist?',['About 1/30','1/4000','10 seconds','1/1000'],'Slow enough to blur the background.'),mc('Panning gives:',['A sharp subject and a streaked background','A sharp background and a blurred subject','Everything blurred','Everything sharp'],'You move with the subject.'),tf('Keep following the subject after you press the shutter.',true,'Stopping suddenly can ruin the blur.'),mc('Best way to turn the camera?',['Pivot from the hips','Shake your arms','Walk sideways','Hold your breath only'],'A smooth rotation helps.')]),
+les('minimal',6,'Minimalism','space',['Subtract until it works','Minimalism means one idea, few elements and lots of space. Remove everything that does not support the subject.'],['Look for calm','Plain skies, snow, fog, sand and walls make great backgrounds. A single colour or shape against a clean field draws the eye.'],
+ [mc('Minimalism is mostly about:',['Removing distractions','Adding props','Using flash','High ISO'],'Less competes less.'),mc('Which background is best for a minimal shot?',['A plain sky','A busy market','A crowded desk','A forest floor'],'Clean areas let a subject breathe.'),tf('A minimal photo often has lots of negative space.',true,'Empty areas are part of the design.'),mc('Your frame feels cluttered. First try:',['Moving to remove elements','Adding more subjects','A slower shutter','A wider lens'],'Change position or crop tighter.')]),
+les('patterns',6,'Patterns and texture','thirds',['Repetition catches the eye','Windows, tiles, waves and leaves repeat. Fill the frame with the pattern to emphasise it, or break it with one different element for a focal point.'],['Texture needs side light','Low side light throws tiny shadows that reveal rough surfaces such as bark, stone and fabric. Front light flattens them.'],
+ [mc('How can you make a pattern more interesting?',['Break it with one different element','Add more of the same','Blur it','Crop out everything'],'A surprise creates a focal point.'),mc('Which light shows texture best?',['Low side light','Front flash','Overcast flat light','Top light at noon'],'Side light creates tiny shadows.'),tf('You should fill the frame to show a pattern.',true,'It shows repetition clearly.'),mc('Bark texture looks flat. Try:',['Moving so light hits from the side','Using ISO 6400','Zooming out','Turning off the flash'],'Change the light direction.')]),
+les('angles',6,'Angles','camera',['Change your height','Eye level is how we usually see. Get low for power and drama, or high to simplify and show layout. A small step often matters more than a new lens.'],['Walk all the way around','Before you shoot, circle the subject and look from three or four sides. Get closer than feels natural. Then check the background from each angle.'],
+ [mc('A low angle tends to make a subject look:',['Powerful and big','Small and weak','Flat','Blurry'],'Looking up adds presence.'),mc('A high angle is useful for:',['Showing layout and simplifying','Making subjects tower','Creating silhouettes','Freezing motion'],'You can look down on a scene.'),tf('Changing position can matter more than changing lenses.',true,'Perspective comes from where you stand.'),mc('What should you do before shooting a subject?',['Walk around it and check angles','Shoot once and leave','Use maximum zoom','Pick ISO 12800'],'Explore before committing.')]),
+les('trails',6,'Light trails','trail',['Paint with moving light','Put the camera on a tripod and use a long exposure of 5 to 30 seconds. Cars and lights become glowing streaks that lead the eye through the picture.'],['Settings to start with','ISO 100, f/8 to f/11, a remote or timer, and manual focus. Shoot at blue hour so the sky still has some colour.'],
+ [mc('How long should the shutter stay open for car trails?',['5 to 30 seconds','1/1000 s','1/60 s','1/8000 s'],'A long exposure records movement.'),mc('Best time for city trails?',['Blue hour','Noon','Midday','Early morning at 1/2000'],'The sky still holds colour.'),tf('A tripod is needed for light trails.',true,'Everything else must stay sharp.'),mc('Which ISO is a good start?',['100','6400','12800','25600'],'Low ISO keeps it clean.')]),
+/* Unit 8: Gear */
+les('phone',7,'Phone photography','camera',['Your phone is a real camera','Clean the lens, tap to focus and slide to adjust brightness. Turn on grid lines to help with thirds. Avoid digital zoom and walk closer instead.'],['Know the tricks','Use portrait mode for gentle background blur, night mode on a steady surface, and exposure lock for tricky light. Shoot in the best light available.'],
+ [mc('A smudged lens usually causes:',['Soft, hazy photos','Sharper photos','More colour','Faster focus'],'Wipe it with a clean cloth.'),mc('Digital zoom mostly:',['Crops and loses quality','Adds light','Adds detail','Widens the aperture'],'Walk closer instead.'),tf('Grid lines can help you use the rule of thirds.',true,'They show the nine boxes.'),mc('In dim light, phone night mode works best when you:',['Hold still or brace it','Wave it around','Use digital zoom','Shoot fast'],'It combines several exposures.')]),
+les('lenses',7,'Choosing lenses','focal',['Prime or zoom','A prime lens has one focal length and usually a wide aperture, so it is sharp and good in low light. A zoom covers a range and is flexible but often heavier and slower.'],['Start simple','A 50 mm f/1.8 is cheap and teaches a lot. Look for stabilisation if you shoot handheld in low light. Buy based on what you shoot most.'],
+ [mc('What is a prime lens?',['A fixed focal length lens','A lens that zooms','A lens with a filter','A phone lens'],'There is no zoom ring.'),mc('A fast lens means:',['A wide maximum aperture','A fast shutter','Only fast autofocus','A light lens'],'It lets in lots of light.'),tf('Zoom lenses are more flexible than primes.',true,'You can change framing without moving.'),mc('A good first lens for portraits and low light:',['50 mm f/1.8','1000 mm f/11','8 mm fisheye','A teleconverter'],'It is affordable and sharp.')]),
+les('filters',7,'Filters','hardsoft',['Glass that shapes light','A polarising filter deepens skies and cuts glare. A neutral density (ND) filter darkens everything so you can use a long shutter in daylight. A graduated ND balances a bright sky.'],['Protect and keep it simple','A clear filter or lens hood protects the front glass. Do not stack cheap filters, as they reduce sharpness and cause flare.'],
+ [mc('Which filter lets you use a 30 second shutter in daylight?',['ND filter','Clear filter','Polariser only','UV'],'It cuts the amount of light.'),mc('Which filter reduces glare on water?',['Polariser','ND','Warm filter','Close-up filter'],'It removes reflected light.'),tf('A graduated ND helps balance a bright sky with a darker foreground.',true,'The dark half sits over the sky.'),mc('A lens hood helps:',['Reduce flare','Add blur','Brighten shadows','Freeze motion'],'It blocks stray light.')]),
+les('flash',7,'Flash basics','hardsoft',['Flash adds light you choose','In sunshine, fill flash lifts dark shadows on faces. Indoors, bounce flash off a white ceiling for soft light instead of pointing it at the subject.'],['Know your limits','Flash sync speed is often about 1/200. Direct flash looks harsh and can cause red-eye. Soften it with a diffuser, or take it off the camera and angle it.'],
+ [mc('Which gives the softest flash light?',['Bouncing it off a white ceiling','Pointing it straight at the subject','Covering the lens','Using ISO 100'],'A bigger source is softer.'),mc('Fill flash in sunshine does what?',['Lightens shadows on faces','Freezes stars','Adds blur','Darkens the sky'],'It balances contrast.'),tf('Direct flash on the camera usually looks harsh.',true,'Light from the lens axis is flat and hard.'),mc('The usual maximum sync speed is about:',['1/200','1/4000','1/8000','1/2'],'Faster speeds cause black bands.')]),
+/* Unit 9: Editing */
+les('rawjpeg',8,'RAW or JPEG','sliders',['What you capture','A JPEG is processed and compressed in camera. A RAW file keeps nearly all sensor data, so it is larger but far more flexible when you edit.'],['Which should you shoot?','Shoot RAW when you plan to edit and JPEG for quick sharing. Many cameras can save both. RAW needs software to open and export.'],
+ [mc('Which file keeps more editing room?',['RAW','JPEG','GIF','Screenshot'],'It holds more sensor information.'),tf('RAW files are bigger than JPEGs.',true,'More data takes more space.'),mc('You want to share straight from the camera. Use:',['JPEG','RAW only','A tripod','Bulb mode'],'JPEGs are ready to share.'),mc('RAW files let you easily change:',['White balance and exposure','Your lens','The date','The aperture used'],'Those edits are non-destructive.')]),
+les('crop',8,'Crop and straighten','thirds',['Crop to improve composition','Cropping can remove clutter, place the subject on a third and change the shape of the picture. Shoot a little wider than you need to give yourself room.'],['Straighten and choose a ratio','Level the horizon first. Common ratios are 3:2, 4:5 for portrait posts, 1:1 square and 16:9 wide. Cropping loses pixels, so do not crop too hard if you want a big print.'],
+ [mc('Why shoot slightly wide?',['You can crop later','To raise ISO','To add noise','To avoid focus'],'You get more room to compose.'),tf('Cropping removes pixels.',true,'Heavy crops lower print size.'),mc('Which ratio is common for a portrait post?',['4:5','21:1','1:10','5:1'],'It fills a phone screen well.'),mc('First step when a horizon looks tilted:',['Straighten it','Add noise','Raise ISO','Crop to square'],'Level before cropping.')]),
+les('tone',8,'Tone and contrast','sliders',['Light first','Set overall exposure, then recover highlights and lift shadows. Watch the histogram so you do not clip. Add contrast gently with a curve or slider.'],['Small moves win','Most edits should be subtle. Check the picture at a small size and on a different screen. If you can see the edit, it is probably too much.'],
+ [mc('What should you fix first?',['Overall exposure','Sharpening','Vignette','Borders'],'Everything else builds on exposure.'),mc('Lifting shadows does what?',['Reveals detail in dark areas','Darkens highlights','Adds blur','Changes ISO'],'It brightens dark tones.'),tf('Heavy edits are usually better than subtle ones.',false,'Subtle edits look more natural.'),mc('A good check on your edit is to:',['View it small and on another screen','Zoom to 500% only','Add more saturation','Close your eyes'],'Different views reveal problems.')]),
+les('grade',8,'Colour grading','colour',['Colour with intent','Temperature moves from blue to orange and tint from green to magenta. Saturation boosts every colour, while vibrance mostly boosts weaker colours and protects skin tones.'],['Make a consistent look','Pick a mood such as warm and soft or cool and moody and apply the same ideas across a set. HSL sliders adjust single colours, such as deepening a blue sky.'],
+ [mc('Which slider protects skin tones while boosting colour?',['Vibrance','Saturation','Contrast','Sharpening'],'Vibrance is gentler.'),mc('Which control shifts a photo from blue to orange?',['Temperature','Tint','Dehaze','Grain'],'It sets the colour of the light.'),tf('HSL controls let you change one colour at a time.',true,'Hue, saturation and luminance per colour.'),mc('A consistent set of photos should share:',['A similar colour mood','Identical subjects','The same size only','Random edits'],'A shared look feels deliberate.')]),
+les('retouch',8,'Cleaning up','sliders',['Clean up the small stuff','Remove dust spots, stray litter and small distractions with a healing or clone tool. Fix what the viewer would notice, not what only you can see.'],['Be honest','Keep skin looking like skin. For news and documentary work, never add or remove things that change the truth. For art, say how you made it.'],
+ [mc('A dust spot in the sky is best removed with:',['The healing tool','A stronger vignette','A crop to square','A new lens'],'It blends the area with its surroundings.'),tf('Over-smoothing skin makes people look unreal.',true,'Leave some texture.'),mc('In documentary photography you should not:',['Add or remove things that change the truth','Crop','Adjust exposure','Convert to black and white'],'Truth matters.'),mc('Dust spots show up most in:',['Plain skies','Busy forests','Dark rooms','Out of focus areas'],'Clean areas reveal marks.')]),
+/* Unit 10: Storytelling */
+les('story',9,'Telling a story','frame',['One picture, one story','A strong frame has a subject, a place and a moment. Ask who, where and what is happening, then show it.'],['Shoot the set','Capture a wide shot for the place, a medium for the action and a close detail for emotion. Together they tell the whole story.'],
+ [mc('Which three shots build a story?',['Wide, medium, close','Three identical close shots','Only wide','Only selfies'],'Variety gives context and feeling.'),tf('A good photo shows a moment as well as a subject.',true,'The moment adds meaning.'),mc('A close detail shot adds:',['Emotion and texture','The whole place','Distance','Noise'],'Details carry feeling.'),mc('Before shooting, ask:',['What is the story here?','What ISO is trendy?','Which filter is cheapest?','How many photos can I delete?'],'Intent guides your choices.')]),
+les('series',9,'Photo series','thirds',['Photos that belong together','Pick one theme, place or idea, then keep your style consistent. Aim for 8 to 12 images and vary the shots so the set is not repetitive.'],['Sequence it','Open strong, close strong and make the order flow with light, colour and mood. Cut any frame that repeats another.'],
+ [mc('A good length for a first series is:',['8 to 12 images','1 image','200 images','2 images'],'That is enough to explore and small enough to edit.'),mc('Which makes a series feel strong?',['A clear theme and consistent style','Random subjects','Different edits each time','Many repeats'],'Cohesion matters.'),tf('You should remove frames that repeat another.',true,'Each picture should add something.'),mc('How should a series begin?',['With a strong image','With the weakest image','With a blank screen','In random order'],'First impressions count.')]),
+les('critique',9,'Critique','space',['Ask good questions','Instead of asking do you like it, ask what draws your eye first, what is distracting and what the picture is about. Specific questions get useful answers.'],['Take it well','Listen without defending. Notice patterns across several people. Keep what rings true and ignore the rest. When you give feedback, say what works first, then one improvement.'],
+ [mc('Which is a better question to ask?',['What do you notice first?','Do you like it?','Is it perfect?','Is it popular?'],'Specific questions teach you more.'),tf('You should argue with feedback straight away.',false,'Listen first.'),mc('A helpful critique starts with:',['What works','What is wrong','Your opinion of the camera','The price of the lens'],'Start positively and be specific.'),mc('Three people say the horizon is tilted. You should:',['Check and probably fix it','Ignore them','Blame the lens','Delete the photo'],'Patterns in feedback are worth noting.')]),
+les('portfolio',9,'Your portfolio','frame',['Show your best, not your most','Choose 10 to 20 images you are proud of. Cut anything weak, even if it has a good story. One mediocre picture lowers the whole set.'],['Keep it fresh','Group by theme, write a short about me and add a way to contact you. Review it every few months, swap in newer work and ask a friend to look with fresh eyes.'],
+ [mc('How many images should a first portfolio hold?',['10 to 20','1','200','Every photo you took'],'Curate hard.'),mc('A weak image in a portfolio will:',['Lower the impression of the whole set','Improve it','Do nothing','Add depth'],'Viewers remember the weakest link.'),tf('A short about me helps viewers connect with you.',true,'It adds context.'),mc('How often should you update your portfolio?',['Every few months','Never','Every day','Only once'],'Swap in new work as you improve.')])
+);
+const SPEED=[
+ ['f/2 is a wider opening than f/8.',true],['ISO 3200 gives cleaner images than ISO 100.',false],['1/1000 s freezes motion better than 1/30 s.',true],
+ ['Golden hour is around noon.',false],['The rule of thirds puts subjects on grid lines.',true],['A bigger f-number makes the background blurrier.',false],
+ ['Overcast skies give soft light.',true],['Backlight can make silhouettes.',true],['Doubling the shutter time halves the light.',false],
+ ['Leading lines draw the eye toward the subject.',true],['Blue and orange are complementary colours.',true],['Front light shows the most texture.',false],
+ ['A tripod helps with long exposures.',true],['Wide-angle lenses exaggerate things close to the lens.',true],['RAW files keep more editing data than JPEG.',true],
+ ['A fast shutter makes a waterfall look silky.',false],['Noise is easiest to see in dark areas at high ISO.',true],['Negative space means a cluttered background.',false],
+ ['Shooting from a low angle can make a subject look larger.',true],['f/16 lets in more light than f/4.',false],['Blue hour comes after sunset.',true],['Hard light makes soft, gradual shadows.',false],
+ ['A telephoto lens makes background and subject look closer together.',true],['Single autofocus is the best choice for a sprinting dog.',false],['The 500 rule helps keep stars sharp in long exposures.',true],
+ ['Histogram data on the far right can mean lost highlights.',true],['Tungsten bulbs give a cooler light than daylight.',false],['A polarising filter can reduce glare on water.',true],
+ ['Panning needs a very fast shutter like 1/4000.',false],['Cropping a photo adds pixels.',false],['A prime lens has a fixed focal length.',true],
+ ['Bouncing flash off a white ceiling softens it.',true],['Vibrance boosts all colours equally.',false],['Shooting RAW lets you change white balance later.',true]];
+const MISSIONS=[
+ {p:'City street',items:[['m1','Find three leading lines','Roads, rails or fences that point at something.',5],['m2','Frame it','Shoot a person or object through a doorway, window or arch.',5],['m3','Catch a reflection','Puddles, glass and shiny cars all count.',5]]},
+ {p:'Park',items:[['m4','Soft light portrait','Shoot a friend in open shade under a tree.',5],['m5','Three layers','Foreground leaves, a subject, a background.',5],['m6','Low angle','Get down to ground level and shoot up.',5]]},
+ {p:'Waterfront',items:[['m7','Golden hour glow','Shoot within an hour of sunset.',5],['m8','Silhouette','Expose for the sky and let the subject go dark.',5],['m9','Calm water','Slow the shutter and steady the camera.',5]]},
+ {p:'At home',items:[['m10','Window light','Place a subject beside a window and use the side light.',5],['m11','Negative space','One small object on a plain surface.',5],['m12','Colour pair','Find a complementary pair in your room.',5]]}];
+const CITIES=[
+ {n:'New York',lat:40.7128,lng:-74.006,tz:'America/New_York'},{n:'Chicago',lat:41.8781,lng:-87.6298,tz:'America/Chicago'},
+ {n:'Los Angeles',lat:34.0522,lng:-118.2437,tz:'America/Los_Angeles'},{n:'London',lat:51.5072,lng:-0.1276,tz:'Europe/London'},
+ {n:'Paris',lat:48.8566,lng:2.3522,tz:'Europe/Paris'},{n:'Cairo',lat:30.0444,lng:31.2357,tz:'Africa/Cairo'},
+ {n:'Dubai',lat:25.2048,lng:55.2708,tz:'Asia/Dubai'},{n:'Mumbai',lat:19.076,lng:72.8777,tz:'Asia/Kolkata'},
+ {n:'Tokyo',lat:35.6762,lng:139.6503,tz:'Asia/Tokyo'},{n:'Sydney',lat:-33.8688,lng:151.2093,tz:'Australia/Sydney'},
+ {n:'Sao Paulo',lat:-23.5505,lng:-46.6333,tz:'America/Sao_Paulo'}];
+const LEVELS=['Beginner','Snapshot','Hobbyist','Framer','Light Chaser','Shutterbug','Lens Pro','Storyteller','Visionary','Master','Maestro','Legend'];
+const TAGS=['Aperture','Shutter','ISO','Composition','Light','Colour','Other'];
+
+/* ================= illustrations ================= */
+const A='var(--blue-deep)',B='var(--blue)',T='var(--ink)',M='var(--muted)',SF='var(--surface)',LN='var(--line)';
+const txt=(x,y,s,a='middle',sz=11)=>`<text x="${x}" y="${y}" text-anchor="${a}" font-family="Nunito,sans-serif" font-weight="800" font-size="${sz}" fill="${T}">${s}</text>`;
+const ILL={
+ aperture:()=>[0,1,2].map(i=>{const x=48+72*i,r=[26,15,6][i];return `<circle cx="${x}" cy="52" r="34" fill="${SF}" stroke="${LN}" stroke-width="3"/><circle cx="${x}" cy="52" r="${r}" fill="${B}"/>`+txt(x,108,['f/1.8','f/5.6','f/16'][i])}).join(''),
+ shutter:()=>`<rect x="14" y="14" width="100" height="76" rx="12" fill="${SF}"/><circle cx="64" cy="52" r="13" fill="${A}"/>${txt(64,108,'1/1000')}<rect x="126" y="14" width="100" height="76" rx="12" fill="${SF}"/>${[0,1,2,3,4].map(i=>`<circle cx="${150+i*12}" cy="52" r="13" fill="${A}" opacity="${.15+i*.18}"/>`).join('')}${txt(176,108,'1/4')}`,
+ iso:()=>{let d1='',d2='';for(let i=0;i<7;i++)for(let j=0;j<5;j++){d1+=`<circle cx="${28+i*14}" cy="${22+j*14}" r="3.6" fill="${B}"/>`;const s=(i*7+j*13)%5;d2+=`<circle cx="${148+i*14+(s-2)*2}" cy="${22+j*14+((s*3)%5-2)*2}" r="${2.6+s*.45}" fill="${s%2?A:B}" opacity="${.55+s*.1}"/>`}return `<rect x="14" y="8" width="104" height="82" rx="12" fill="${SF}"/>${d1}${txt(66,108,'ISO 100')}<rect x="132" y="8" width="104" height="82" rx="12" fill="${SF}"/>${d2}${txt(184,108,'ISO 6400')}`},
+ triangle:()=>`<path d="M120 12L200 100H40z" fill="${SF}" stroke="${A}" stroke-width="4" stroke-linejoin="round"/>${txt(120,8,'Aperture')}${txt(30,114,'Shutter',"middle")}${txt(210,114,'ISO')}<circle cx="120" cy="12" r="6" fill="${B}"/><circle cx="40" cy="100" r="6" fill="${B}"/><circle cx="200" cy="100" r="6" fill="${B}"/>`,
+ thirds:()=>`<rect x="40" y="6" width="160" height="108" rx="10" fill="${SF}"/>${[93.3,146.7].map(x=>`<path d="M${x} 6v108" stroke="${M}" stroke-width="1.5" stroke-dasharray="4 4"/>`).join('')}${[42,78].map(y=>`<path d="M40 ${y}h160" stroke="${M}" stroke-width="1.5" stroke-dasharray="4 4"/>`).join('')}${[[93.3,42],[146.7,42],[93.3,78],[146.7,78]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="${B}"/>`).join('')}<circle cx="146.7" cy="42" r="10" fill="${A}"/>`,
+ lines:()=>`<rect x="30" y="6" width="180" height="108" rx="10" fill="${SF}"/><path d="M30 114L112 52M210 114L128 52" stroke="${A}" stroke-width="5" stroke-linecap="round"/><path d="M120 114V52" stroke="${B}" stroke-width="4" stroke-dasharray="8 8"/><circle cx="120" cy="40" r="9" fill="${B}"/><path d="M30 52h180" stroke="${LN}" stroke-width="2"/>`,
+ frame:()=>`<rect x="40" y="6" width="160" height="108" rx="10" fill="${B}" opacity=".5"/><path d="M70 114V54a50 50 0 0 1 100 0v60z" fill="${SF}" stroke="${A}" stroke-width="6"/><circle cx="120" cy="64" r="11" fill="${A}"/><path d="M104 108c2-18 30-18 32 0z" fill="${A}"/>`,
+ space:()=>`<rect x="30" y="6" width="180" height="108" rx="10" fill="${SF}"/><circle cx="178" cy="84" r="9" fill="${A}"/><path d="M30 96h180" stroke="${LN}" stroke-width="2"/>`,
+ golden:()=>`<defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd0f7"/><stop offset=".7" stop-color="#fbd38a"/><stop offset="1" stop-color="#f6a65a"/></linearGradient></defs><rect x="20" y="6" width="200" height="108" rx="12" fill="url(#gg)"/><circle cx="150" cy="76" r="15" fill="#fff1b8"/><rect x="20" y="86" width="200" height="28" fill="#456c52"/><rect x="20" y="86" width="200" height="28" rx="0" fill="#456c52"/><path d="M62 86V62" stroke="#2f4a38" stroke-width="3"/><circle cx="62" cy="58" r="9" fill="#2f4a38"/><path d="M62 90l-52 12" stroke="#2f4a38" stroke-width="3" opacity=".6"/>`,
+ hardsoft:()=>`<defs><radialGradient id="rs"><stop offset=".3" stop-color="${A}"/><stop offset="1" stop-color="${A}" stop-opacity="0"/></radialGradient></defs><rect x="14" y="8" width="100" height="84" rx="12" fill="${SF}"/><circle cx="64" cy="40" r="17" fill="${B}"/><ellipse cx="82" cy="76" rx="26" ry="7" fill="${A}"/>${txt(64,108,'Hard')}<rect x="126" y="8" width="100" height="84" rx="12" fill="${SF}"/><circle cx="176" cy="40" r="17" fill="${B}"/><ellipse cx="190" cy="76" rx="34" ry="12" fill="url(#rs)"/>${txt(176,108,'Soft')}`,
+ direction:()=>`<circle cx="120" cy="60" r="22" fill="${A}"/><path d="M22 60h52M96 14l-20 20M22 108l0 0" stroke="${B}" stroke-width="5" stroke-linecap="round"/><path d="M64 54l12 6-12 6M80 24l-4 12 12-2" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M218 60h-52" stroke="${B}" stroke-width="5" stroke-linecap="round"/><path d="M176 54l-12 6 12 6" fill="none" stroke="${B}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>${txt(46,92,'Side','middle',10)}${txt(194,92,'Back','middle',10)}${txt(120,108,'Front: flat, Side: texture, Back: glow',"middle",10)}`,
+ colour:()=>`<circle cx="92" cy="58" r="40" fill="#2F8FD0"/><circle cx="148" cy="58" r="40" fill="#F29A3C" opacity=".92"/><path d="M120 24a40 40 0 0 1 0 68a40 40 0 0 1 0-68z" fill="#e8e0ea"/>${txt(120,116,'Opposites make both pop',"middle",10)}`
+};
+Object.assign(ILL,{
+ focus:()=>`<circle cx="48" cy="56" r="30" fill="${B}" opacity=".18"/><circle cx="48" cy="56" r="20" fill="${B}" opacity=".35"/><circle cx="120" cy="56" r="20" fill="${A}"/><circle cx="192" cy="56" r="30" fill="${B}" opacity=".18"/><circle cx="192" cy="56" r="20" fill="${B}" opacity=".35"/>${txt(48,108,'Blurry')}${txt(120,108,'In focus')}${txt(192,108,'Blurry')}`,
+ focal:()=>`<path d="M24 60L150 6V114z" fill="${B}" opacity=".35"/><path d="M24 60L150 36V84z" fill="${A}" opacity=".75"/><rect x="8" y="48" width="24" height="24" rx="6" fill="${A}"/>${txt(190,40,'Wide','middle',13)}${txt(190,80,'Tele','middle',13)}`,
+ hist:()=>[8,16,30,46,60,52,38,26,18,10,6,14].map((h,i)=>`<rect x="${30+i*15}" y="${100-h}" width="12" height="${h}" rx="3" fill="${B}"/>`).join('')+`<path d="M24 102h192" stroke="${M}" stroke-width="2"/>${txt(48,116,'Shadows','middle',10)}${txt(192,116,'Highlights','middle',10)}`,
+ sliders:()=>[28,56,84].map((y,i)=>`<rect x="40" y="${y}" width="160" height="8" rx="4" fill="${LN}"/><circle cx="${[90,150,115][i]}" cy="${y+4}" r="10" fill="${A}"/>`).join(''),
+ trail:()=>`<rect x="14" y="8" width="212" height="104" rx="12" fill="#1c2a4a"/><path d="M14 96C70 62 130 108 226 42" stroke="#ff7a59" stroke-width="5" fill="none"/><path d="M14 80C80 50 140 92 226 30" stroke="#ffd25a" stroke-width="4" fill="none"/><path d="M14 104C60 84 150 110 226 58" stroke="#7cc8f4" stroke-width="3" fill="none"/>`,
+ wb:()=>`<defs><linearGradient id="wbg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#ff9a3c"/><stop offset=".5" stop-color="#ffffff"/><stop offset="1" stop-color="#6fb2ff"/></linearGradient></defs><rect x="20" y="30" width="200" height="30" rx="15" fill="url(#wbg)" stroke="${LN}" stroke-width="2"/>${txt(40,84,'3200 K')}${txt(120,84,'5500 K')}${txt(200,84,'7500 K')}`,
+ camera:()=>`<rect x="60" y="30" width="120" height="70" rx="14" fill="${B}"/><rect x="82" y="18" width="34" height="16" rx="5" fill="${A}"/><circle cx="120" cy="66" r="24" fill="${SF}"/><circle cx="120" cy="66" r="13" fill="${A}"/>`
+});
+const ill=n=>`<div class="ill"><svg viewBox="0 0 240 120" role="img" aria-label="Illustration">${(ILL[n]||ILL.camera)()}</svg></div>`;
+const MASCOT=`<svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true"><rect x="10" y="30" width="100" height="70" rx="22" fill="var(--blue)"/><rect x="30" y="16" width="34" height="20" rx="8" fill="var(--blue-edge)"/><circle cx="60" cy="64" r="26" fill="var(--surface)"/><circle cx="60" cy="64" r="14" fill="var(--blue-deep)"/><circle cx="65" cy="59" r="4.5" fill="var(--surface)"/><path d="M46 92q14 10 28 0" stroke="var(--blue-ink)" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="94" cy="44" r="4" fill="var(--blue-ink)"/></svg>`;
+
+/* ================= state ================= */
+const LS='focal.v1';
+const blank=()=>({xp:0,streak:0,best:0,lastDay:'',lessons:{},missions:{},games:{},gdays:{d:'',n:{}},goal:20,dayXp:{d:'',x:0},weekXp:{w:'',x:0},friends:[],unlocked:{},updated:0});
+const S={tab:'learn',user:null,db:null,sample:null,sampleImg:false,me:{id:null,name:'',avatarUrl:'',color:''},canWrite:true,
+ profiles:{},names:{},prog:blank(),myPhotos:[],friendPhotos:{},mySpots:[],friendSpots:{},subs:{ph:{},sp:{}},adopted:false,galTab:'mine',place:0,sunPick:null};
+try{const j=localStorage.getItem(LS);if(j)S.prog=Object.assign(blank(),JSON.parse(j))}catch(e){}
+try{const j=localStorage.getItem(LS+'.ph');if(j)S.localPhotos=JSON.parse(j)}catch(e){}
+try{const j=localStorage.getItem(LS+'.sp');if(j)S.localSpots=JSON.parse(j)}catch(e){}
+S.localPhotos=S.localPhotos||[];S.localSpots=S.localSpots||[];
+const lvlStart=L=>50*L*(L-1);
+const lvl=xp=>Math.floor((1+Math.sqrt(1+xp/12.5))/2);
+const lvlName=xp=>LEVELS[Math.min(LEVELS.length-1,lvl(xp)-1)];
+const lvlInfo=xp=>{const L=lvl(xp),a=lvlStart(L),b=lvlStart(L+1);return {L,have:xp-a,need:b-a,pct:Math.round((xp-a)/(b-a)*100)}};
+const effStreak=p=>p&&(p.lastDay===todayKey()||p.lastDay===yesterdayKey())?(p.streak||0):0;
+const weekXpOf=p=>p&&p.weekXp&&p.weekXp.w===weekKey()?p.weekXp.x:0;
+const nameOf=id=>id===S.me.id?(S.me.name||'You'):((S.names[id]&&S.names[id].name)||'A friend');
+const avOf=id=>id===S.me.id?S.me.avatarUrl:(S.names[id]&&S.names[id].avatarUrl)||'';
+const avatar=(id,cls='sm')=>{const u=avOf(id);return `<span class="avatar ${cls}">${u?`<img src="${esc(u)}" alt="">`:ico('user')}</span>`};
+
+/* persistence */
+let saveT,writing=false,dirty=false;
+function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S.prog))}catch(e){}}
+function save(){S.prog.updated=Date.now();saveLocal();clearTimeout(saveT);saveT=setTimeout(flush,700);renderChips()}
+async function flush(){
+  if(!S.db||!S.me.id||!S.canWrite)return;
+  if(writing){dirty=true;return}
+  writing=true;
+  try{await S.db.doc('profiles/'+S.me.id).set(JSON.parse(JSON.stringify(S.prog)))}
+  catch(e){if(e&&(e.code==='invalid_argument'||e.code==='revoked')){S.canWrite=false;renderBanner()}}
+  finally{writing=false;if(dirty){dirty=false;flush()}}
+}
+function awardXp(n){
+  if(n<=0)return;const p=S.prog,t=todayKey(),w=weekKey();
+  const l0=lvl(p.xp);p.xp+=n;if(lvl(p.xp)>l0)toast('Level up! Level '+lvl(p.xp)+', '+lvlName(p.xp));
+  if(p.dayXp.d!==t)p.dayXp={d:t,x:0};p.dayXp.x+=n;
+  if(p.weekXp.w!==w)p.weekXp={w,x:0};p.weekXp.x+=n;
+  if(p.lastDay!==t){p.streak=p.lastDay===yesterdayKey()?p.streak+1:1;p.lastDay=t;p.best=Math.max(p.best,p.streak)}
+  save();renderRail();renderFriends();
+}
+function gameXpOk(g){const p=S.prog,t=todayKey();if(p.gdays.d!==t)p.gdays={d:t,n:{}};return (p.gdays.n[g]||0)<2}
+function gamePlayed(g){const p=S.prog,t=todayKey();if(p.gdays.d!==t)p.gdays={d:t,n:{}};p.gdays.n[g]=(p.gdays.n[g]||0)+1}
+
+/* ================= chrome ================= */
+function renderNav(){
+  const items=[['learn','camera','Learn'],['games','games','Games'],['spots','pin','Spots'],['gallery','image','Gallery'],['friends','users','Friends']];
+  $('#nav').innerHTML=items.map(i=>`<button data-a="tab" data-t="${i[0]}" class="${S.tab===i[0]?'on':''}" aria-label="${i[2]}" ${S.tab===i[0]?'aria-current="page"':''}>${ico(i[1])}<span>${i[2]}</span></button>`).join('');
+}
+function renderChips(){
+  $('#chipStreak').innerHTML=ico('flame','fill')+`<span>${effStreak(S.prog)}</span>`;
+  $('#chipXp').innerHTML=ico('bolt','fill')+`<span>${S.prog.xp}</span>`;
+  $('#btnProfile').innerHTML=S.me.avatarUrl?`<img src="${esc(S.me.avatarUrl)}" alt="">`:ico('user');
+}
+function renderBanner(){
+  let h='';
+  if(!S.canWrite)h='<div class="banner">You can look around, but this page cannot save for you yet. Ask its owner for Contributor access to keep your progress in your account and join the leaderboard. Progress is still kept in this browser.</div>';
+  $('#banner').innerHTML=h;
+}
+function setTab(t){
+  S.tab=t;
+  document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!=='v-'+t);
+  renderNav();
+  if(t==='learn'){renderPath();renderRail()}
+  if(t==='games')renderGames();
+  if(t==='spots'){renderMissions();renderSpots();renderSun()}
+  if(t==='gallery')renderGallery();
+  if(t==='friends')renderFriends();
+  if(t==='profile')renderProfile();
+  window.scrollTo(0,0);
+}
+
+/* ================= learn ================= */
+function renderPath(){
+  let h='',nextOpen=true,gi=0;
+  UNITS.forEach((u,ui)=>{
+    const ls=LESSONS.filter(l=>l.u===ui);
+    const dn=ls.filter(l=>S.prog.lessons[l.id]&&S.prog.lessons[l.id].done).length;
+    const unl=S.prog.unlocked&&S.prog.unlocked[ui];
+    const jump=!nextOpen&&!unl&&dn<ls.length;
+    if(unl&&dn<ls.length)nextOpen=true;
+    h+=`<div class="unit"><div><div class="u-k">Unit ${ui+1} · ${u.l}</div><h2>${u.n}</h2><div class="u-s">${u.s}</div></div><div class="row" style="flex:none"><div class="u-c">${dn}/${ls.length}</div>${jump?`<button class="btn sm ghost" data-a="unlockunit" data-u="${ui}">Jump here</button>`:''}</div></div><div class="path">`;
+    ls.forEach(l=>{
+      const rec=S.prog.lessons[l.id];const done=!!(rec&&rec.done);const cur=!done&&nextOpen;if(!done&&nextOpen)nextOpen=false;
+      const st=done?'done':cur?'cur':'lock';const off=Math.round(Math.sin(gi*1.15)*52);gi++;
+      h+=`<div class="node" style="transform:translateX(${off}px)">${cur?'<div class="bubble">Start</div>':''}<button class="nbtn ${st}" data-a="lesson" data-id="${l.id}" ${st==='lock'?'disabled':''} aria-label="${esc(l.t)}, ${done?'completed':cur?'next lesson':'locked'}">${ico(done?'check':cur?'camera':'lock')}</button><div class="nlabel">${esc(l.t)}</div>${done?stars(rec.stars||1):''}</div>`;
+    });
+    h+='</div>';
+  });
+  $('#path').innerHTML=h;
+}
+const ring=(p)=>{const r=34,c=2*Math.PI*r;return `<svg width="84" height="84" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="10"/><circle cx="42" cy="42" r="${r}" fill="none" stroke="var(--blue)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 42 42)"/></svg>`};
+function boardRows(){
+  const ids=[S.me.id||'me',...S.prog.friends];
+  return ids.map(id=>{const isMe=id===(S.me.id||'me');const p=isMe?S.prog:S.profiles[id];return {id,isMe,p,xp:weekXpOf(p)}}).sort((a,b)=>b.xp-a.xp);
+}
+function renderRail(){
+  const p=S.prog,dx=p.dayXp.d===todayKey()?p.dayXp.x:0,pc=Math.min(1,dx/p.goal);
+  const rows=boardRows().slice(0,4);
+  const li=lvlInfo(p.xp);
+  $('#rail').innerHTML=`
+   <div class="card" style="grid-column:1/-1"><div class="row"><b class="disp" style="font-size:1.2rem">Level ${li.L}</b><span class="muted grow">${esc(lvlName(p.xp))}</span><span class="muted">${li.have}/${li.need} XP</span></div><div class="bar" style="margin-top:8px;flex:none"><i style="width:${Math.max(3,li.pct)}%"></i></div></div>
+   <div class="card goal">${ring(pc)}<div><div class="num">${dx}/${p.goal}</div><div class="lab">XP goal today</div></div></div>
+   <div class="card goal"><div style="color:#F28A1E">${ico('flame','fill').replace('class="ic fill"','class="ic fill" style="width:44px;height:44px"')}</div><div><div class="num">${effStreak(p)}</div><div class="lab">day streak</div></div></div>
+   <div class="card board"><h3 style="margin-bottom:6px">This week</h3>${S.prog.friends.length?rows.map((r,i)=>`<div class="lb-row"><span class="lb-n">${i+1}</span>${r.isMe?avatar(S.me.id):avatar(r.id)}<span class="grow" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.isMe?'You':nameOf(r.id))}</span><span class="lb-xp">${r.xp} XP</span></div>`).join(''):'<p class="muted">Add friends to compare your week.</p><div style="margin-top:10px"><button class="btn sm ghost" data-a="tab" data-t="friends">Find friends</button></div>'}</div>`;
+}
+
+/* ================= lesson player ================= */
+let P=null;
+function startLesson(id){
+  const l=LESSONS.find(x=>x.id===id);if(!l)return;
+  P={l,steps:[...l.cards.map((c,i)=>({k:'card',c,i})),...l.qs.map(q=>Object.assign({},q))],i:0,done:0,mistakes:0,res:null,sel:null,fin:false};
+  enterStep();$('#player').hidden=false;drawPlayer();
+}
+function enterStep(){
+  const s=P.steps[P.i];P.res=null;P.sel=null;P.mm=false;
+  if(s.k==='mc')P.opts=shuffle(s.o.map((t,j)=>({t,c:j===s.a})));
+  if(s.k==='match'){P.L=shuffle(s.p.map((x,j)=>({t:x[0],j})));P.R=shuffle(s.p.map((x,j)=>({t:x[1],j})));P.pick=null;P.ok={};P.bad=null}
+  if(s.k==='order'){P.bank=shuffle(s.i.map((t,j)=>({t,j})));P.ord=[]}
+}
+function drawPlayer(){
+  const el=$('#player');
+  if(P.fin){drawDone();return}
+  const s=P.steps[P.i],pct=Math.round(P.done/P.steps.length*100);
+  let body='',foot='';
+  if(s.k==='card'){
+    body=`<div class="teach">${s.i===0?ill(P.l.ill):''}<h1>${esc(s.c[0])}</h1><p>${esc(s.c[1])}</p></div>`;
+    foot=`<div class="foot-in"><span></span><button class="btn" data-a="next">Continue</button></div>`;
+  }else{
+    let inner='';
+    if(s.k==='mc')inner=`<div class="opts">${P.opts.map((o,j)=>`<button class="opt ${P.res?(o.c?'good':(P.sel===j?'bad':'')):(P.sel===j?'sel':'')}" data-a="pick" data-j="${j}" ${P.res?'disabled':''}><span class="k">${j+1}</span>${esc(o.t)}</button>`).join('')}</div>`;
+    if(s.k==='tf')inner=`<div class="opts">${[true,false].map((v,j)=>`<button class="opt ${P.res?(v===s.a?'good':(P.sel===v?'bad':'')):(P.sel===v?'sel':'')}" data-a="pick" data-j="${v}" ${P.res?'disabled':''}><span class="k">${j+1}</span>${v?'True':'False'}</button>`).join('')}</div>`;
+    if(s.k==='match'){
+      const cls=(side,o)=>{const k=side+o.j;if(P.ok[o.j])return 'lock';if(P.bad&&P.bad===k)return 'bad';if(P.pick===k)return 'sel';return ''};
+      inner=`<div class="match"><div class="col">${P.L.map(o=>`<button class="opt ${cls('L',o)}" data-a="mpick" data-s="L" data-j="${o.j}" ${P.ok[o.j]?'disabled':''}>${esc(o.t)}</button>`).join('')}</div><div class="col">${P.R.map(o=>`<button class="opt ${cls('R',o)}" data-a="mpick" data-s="R" data-j="${o.j}" ${P.ok[o.j]?'disabled':''}>${esc(o.t)}</button>`).join('')}</div></div>`;
+    }
+    if(s.k==='order'){
+      inner=`<div class="order-line" aria-label="Your answer">${P.ord.map(b=>`<button class="tok" data-a="unord" data-j="${b}" ${P.res?'disabled':''}>${esc(P.bank[b].t)}</button>`).join('')}</div><div class="order-bank">${P.bank.map((o,b)=>`<button class="tok ${P.ord.includes(b)?'used':''}" data-a="ord" data-j="${b}" ${P.res?'disabled':''}>${esc(o.t)}</button>`).join('')}</div>`;
+    }
+    body=`<div class="q"><h1>${esc(s.q)}</h1>${inner}</div>`;
+    if(P.res){
+      let ans='';
+      if(P.res==='bad'){if(s.k==='mc')ans='Answer: '+s.o[s.a];else if(s.k==='tf')ans='Answer: '+(s.a?'True':'False');else if(s.k==='order')ans='Order: '+s.i.join(', ')}
+      const goodMsg=['Nice shot!','In focus!','Sharp thinking!','Great exposure!','Well framed!'][P.done%5];
+      foot=`<div class="foot-in"><div class="msg"><b>${P.res==='good'?goodMsg:'Not quite'}</b><span>${esc(ans?ans+'. ':'')}${esc(s.w||'')}</span></div><button class="btn" data-a="next">Continue</button></div>`;
+    }else if(s.k==='match'){
+      foot=`<div class="foot-in"><span class="muted">Tap one on each side to pair them</span></div>`;
+    }else{
+      const ready=s.k==='mc'?P.sel!==null:s.k==='tf'?P.sel!==null:P.ord.length===P.bank.length;
+      foot=`<div class="foot-in"><span></span><button class="btn" data-a="check" ${ready?'':'disabled'}>Check</button></div>`;
+    }
+  }
+  el.innerHTML=`<div class="ov-top"><button class="x" data-a="quit" aria-label="Quit lesson">${ico('x')}</button><div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.max(4,pct)}%"></i></div></div><div class="ov-body">${body}</div><div class="ov-foot ${P.res||''}">${foot}</div>`;
+}
+function finishStep(good){
+  const s=P.steps[P.i];
+  P.res=good?'good':'bad';
+  if(good){P.done++}
+  else{P.mistakes++;if(s.k!=='match'&&!s.retry)P.steps.push(Object.assign({},s,{retry:true}))}
+  drawPlayer();
+}
+function nextStep(){
+  P.i++;
+  if(P.i>=P.steps.length){completeLesson();return}
+  enterStep();drawPlayer();
+}
+function completeLesson(){
+  const l=P.l,rec=S.prog.lessons[l.id]||{stars:0,done:false,plays:0};
+  const stars=P.mistakes===0?3:P.mistakes<=2?2:1;
+  const first=!rec.done;
+  const xp=first?10+Math.max(0,l.qs.length-P.mistakes)*3:5;
+  const before=unitDone(l.u);
+  rec.done=true;rec.stars=Math.max(rec.stars||0,stars);rec.plays=(rec.plays||0)+1;
+  S.prog.lessons[l.id]=rec;
+  P.fin=true;P.xp=xp;P.stars=stars;P.acc=Math.round(Math.max(0,l.qs.length-P.mistakes)/l.qs.length*100);
+  const lv0=lvl(S.prog.xp);awardXp(xp);if(lvl(S.prog.xp)>lv0)P.lvlUp=lvl(S.prog.xp);
+  if(!before&&unitDone(l.u))P.unit=UNITS[l.u].n;
+  drawPlayer();
+}
+const unitDone=u=>LESSONS.filter(l=>l.u===u).every(l=>S.prog.lessons[l.id]&&S.prog.lessons[l.id].done);
+function drawDone(){
+  $('#player').innerHTML=`<div class="ov-body"><div class="done-screen">${MASCOT}<h1>${P.unit?'Unit complete: '+esc(P.unit):'Lesson complete'}</h1><div class="big-stars">${[1,2,3].map(i=>ico('star','fill'+(i<=P.stars?'':' off'))).join('')}</div><div class="stats"><div class="stat"><b>XP earned</b><span>${P.xp}</span></div><div class="stat"><b>Accuracy</b><span>${P.acc}%</span></div></div>${P.lvlUp?`<p class="disp" style="color:var(--blue-text);font-size:1.3rem">Level up! Level ${P.lvlUp}, ${esc(LEVELS[Math.min(LEVELS.length-1,P.lvlUp-1)])}</p>`:''}<p class="muted">${P.stars===3?'A perfect run. Try a game to lock it in.':'Replay this lesson any time to earn more stars.'}</p></div></div><div class="ov-foot"><div class="foot-in"><button class="btn ghost" data-a="quit">Back to path</button><button class="btn" data-a="donenext">Keep going</button></div></div>`;
+}
+function closePlayer(){$('#player').hidden=true;P=null;renderPath();renderRail()}
+
+/* ================= games ================= */
+function renderGames(){
+  const g=S.prog.games;
+  const art={
+   dial:`<svg viewBox="0 0 200 100" width="200" height="100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="var(--surface)" stroke="var(--line)" stroke-width="3"/><circle cx="50" cy="50" r="14" fill="var(--blue)"/><rect x="100" y="24" width="84" height="12" rx="6" fill="var(--surface)"/><rect x="100" y="24" width="52" height="12" rx="6" fill="var(--blue)"/><rect x="100" y="44" width="84" height="12" rx="6" fill="var(--surface)"/><rect x="100" y="44" width="30" height="12" rx="6" fill="var(--blue)"/><rect x="100" y="64" width="84" height="12" rx="6" fill="var(--surface)"/><rect x="100" y="64" width="68" height="12" rx="6" fill="var(--blue)"/></svg>`,
+   frame:`<svg viewBox="0 0 200 100" width="200" height="100" aria-hidden="true"><rect x="40" y="6" width="120" height="88" rx="10" fill="var(--surface)"/><path d="M80 6v88M120 6v88M40 35h120M40 65h120" stroke="var(--muted)" stroke-dasharray="4 4"/><circle cx="120" cy="35" r="9" fill="var(--blue-deep)"/></svg>`,
+   speed:`<svg viewBox="0 0 200 100" width="200" height="100" aria-hidden="true"><circle cx="100" cy="52" r="38" fill="var(--surface)" stroke="var(--line)" stroke-width="3"/><path d="M100 52V28M100 52l16 10" stroke="var(--blue-deep)" stroke-width="5" stroke-linecap="round"/><rect x="88" y="6" width="24" height="8" rx="4" fill="var(--blue)"/></svg>`};
+  const defs=[['dial','Dial It In','Set aperture, shutter and ISO to match each scene and reach its goal.',g.dial,'stars'],['frame','Frame It','Drag the subject or the horizon to the best place in the frame.',g.frame,'points'],['speed','Speed Round','45 seconds of true or false. How many can you get right?',g.speed,'correct']];
+  $('#gameList').innerHTML=defs.map(d=>`<div class="card gcard"><div class="gart">${art[d[0]]}</div><div><h3>${d[1]}</h3><p class="muted">${d[2]}</p></div><div class="row"><span class="pill">${d[3]!=null?'Best '+d[3]:'Not played'}</span><span class="pill">${gameXpOk(d[0])?'XP available':'XP done today'}</span></div><button class="btn" data-a="game" data-g="${d[0]}">Play</button></div>`).join('');
+}
+function openGame(html){const o=$('#gamelayer');o.innerHTML=html;o.hidden=false}
+function closeGame(){$('#gamelayer').hidden=true;$('#gamelayer').innerHTML='';G=null;renderGames()}
+const gameShell=(title,body,foot)=>`<div class="ov-top"><button class="x" data-a="gquit" aria-label="Close game">${ico('x')}</button><h2 class="grow">${title}</h2></div><div class="ov-body">${body}</div>${foot?`<div class="ov-foot"><div class="foot-in">${foot}</div></div>`:''}`;
+let G=null;
+function gameDone(name,label,score,best,xpRaw){
+  const ok=gameXpOk(name);gamePlayed(name);
+  const xp=ok?xpRaw:0;
+  S.prog.games[name]=Math.max(S.prog.games[name]||0,best);
+  if(xp>0)awardXp(xp);else save();
+  $('#gamelayer').innerHTML=gameShell(label,`<div class="done-screen">${MASCOT}<h1>${score}</h1><div class="stats"><div class="stat"><b>XP earned</b><span>${xp}</span></div><div class="stat"><b>Best</b><span>${S.prog.games[name]}</span></div></div><p class="muted">${ok?'':'You have already earned XP from this game twice today. Keep practising for the score.'}</p></div>`,`<button class="btn ghost" data-a="gquit">Back to games</button><button class="btn" data-a="game" data-g="${name}">Play again</button>`);
+}
+
+/* --- Dial It In --- */
+const APS=[1.4,2,2.8,4,5.6,8,11,16,22];
+const TVS=[[1/4000,'1/4000'],[1/2000,'1/2000'],[1/1000,'1/1000'],[1/500,'1/500'],[1/250,'1/250'],[1/125,'1/125'],[1/60,'1/60'],[1/30,'1/30'],[1/15,'1/15'],[1/8,'1/8'],[1/4,'1/4'],[1/2,'1/2 s'],[1,'1 s']];
+const ISOS=[100,200,400,800,1600,3200,6400];
+const SC=[
+ {t:'Sunny seascape',ev:15,goal:'Keep everything sharp, from the rocks to the horizon.',
+  cons:[['Aperture f/8 or narrower',(n)=>n>=8],['ISO 200 or lower',(n,t,i)=>i<=200]],
+  bg:'<defs><linearGradient id="s1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc8f4"/><stop offset="1" stop-color="#d9f1fb"/></linearGradient></defs><rect width="160" height="100" fill="url(#s1)"/><circle cx="118" cy="28" r="9" fill="#fff3b0"/><rect y="50" width="160" height="50" fill="#3a9bd0"/><path d="M0 62h160M0 74h160" stroke="#fff" opacity=".35"/>',
+  fg:'<path d="M0 100V78l18-10 14 8 12-6 10 12v18z" fill="#4b4f57"/><path d="M108 100V84l14-8 14 6 24-4v22z" fill="#5a5f68"/>',mv:0},
+ {t:'Sprinter on an overcast day',ev:12,goal:'Freeze the runner in mid stride.',
+  cons:[['Shutter 1/1000 or faster',(n,t)=>t<=1/990],['ISO 1600 or lower',(n,t,i)=>i<=1600]],
+  bg:'<rect width="160" height="100" fill="#cfd6dc"/><rect y="20" width="160" height="26" fill="#aab4bd"/><path d="M0 28h160M0 38h160" stroke="#98a3ad"/><rect y="56" width="160" height="44" fill="#c4654a"/><path d="M0 70h160M0 84h160" stroke="#fff" opacity=".7"/>',
+  fg:'<g stroke="#25313b" stroke-width="3.2" stroke-linecap="round" fill="none"><circle cx="78" cy="36" r="6" fill="#25313b"/><path d="M78 43l-3 18M75 61l-12 14M75 61l10 16M77 48l-12 6M77 48l12 -6"/></g>',mv:1},
+ {t:'Window portrait',ev:9,goal:'Blur the background, keep the shutter fast enough to stay sharp.',
+  cons:[['Aperture f/2.8 or wider',(n)=>n<=2.8],['Shutter 1/60 or faster',(n,t)=>t<=1/59],['ISO 800 or lower',(n,t,i)=>i<=800]],
+  bg:'<rect width="160" height="100" fill="#e9d9c6"/><rect x="104" y="12" width="44" height="52" rx="3" fill="#fff7e0"/><path d="M126 12v52M104 38h44" stroke="#d6c3a3" stroke-width="2"/><circle cx="20" cy="30" r="12" fill="#6fa86a"/><circle cx="34" cy="22" r="9" fill="#82bb7a"/>',
+  fg:'<circle cx="62" cy="46" r="17" fill="#e4b48f"/><path d="M20 100c2-24 20-34 42-34s40 10 42 34z" fill="#5f7ea5"/>',mv:0},
+ {t:'Waterfall in the shade',ev:8,goal:'Make the water silky. Use a tripod.',
+  cons:[['Shutter 1/2 s or slower',(n,t)=>t>=0.49],['ISO 200 or lower',(n,t,i)=>i<=200]],
+  bg:'<rect width="160" height="100" fill="#3d5a4a"/><path d="M0 100V60l22-14 20 14 16-10V100zM100 100V56l22-12 38 18v38z" fill="#2f4639"/><circle cx="20" cy="22" r="14" fill="#4e7a5e"/><circle cx="140" cy="20" r="16" fill="#4e7a5e"/>',
+  fg:'<rect x="64" y="0" width="34" height="100" fill="#e8f4fb" opacity=".88"/><path d="M70 0v100M78 0v100M86 0v100M93 0v100" stroke="#bfe0f2" stroke-width="2"/>',mv:2},
+ {t:'Night street',ev:4,goal:'Handheld and sharp, in the dark.',
+  cons:[['Shutter 1/30 or faster',(n,t)=>t<=1/29],['Aperture f/4 or wider',(n)=>n<=4]],
+  bg:'<rect width="160" height="100" fill="#101b33"/><rect x="8" y="22" width="40" height="78" fill="#1c2a4a"/><rect x="108" y="14" width="44" height="86" fill="#1c2a4a"/><g fill="#ffd67a"><rect x="16" y="32" width="6" height="8"/><rect x="30" y="32" width="6" height="8"/><rect x="16" y="52" width="6" height="8"/><rect x="118" y="26" width="6" height="8"/><rect x="134" y="46" width="6" height="8"/><rect x="118" y="66" width="6" height="8"/></g><circle cx="86" cy="26" r="9" fill="#ffe7a6" opacity=".8"/><rect y="84" width="160" height="16" fill="#0a1226"/>',
+  fg:'<g stroke="#c9d6f2" stroke-width="3.2" stroke-linecap="round" fill="none"><circle cx="82" cy="58" r="5" fill="#c9d6f2"/><path d="M82 64v14M82 78l-6 10M82 78l6 10M82 68l-6 7M82 68l6 7"/></g>',mv:1}
+];
+const evOf=(n,t,i)=>Math.log2(n*n/t)-Math.log2(i/100);
+function startDial(){G={g:'dial',s:0,ap:4,tv:5,iso:2,pass:[],tries:0,res:null};drawDial()}
+function drawDial(){
+  const sc=SC[G.s];
+  openGame(gameShell('Dial It In',`<div class="stack">
+    <div class="row"><span class="pill">Scene ${G.s+1} of ${SC.length}</span><h3 class="grow">${esc(sc.t)}</h3></div>
+    <div class="pv" id="pv"><div class="lay" id="lBg"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice">${sc.bg}</svg></div><div class="lay" id="lFg"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice">${sc.fg}</svg></div><div class="grain" id="grain" style="background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E&quot;)"></div></div>
+    <div><div class="meter" aria-hidden="true"><i id="mi"></i></div><div class="row"><span class="muted">Too dark</span><span class="grow" style="text-align:center" id="mlab"></span><span class="muted">Too bright</span></div></div>
+    <p><b>Goal:</b> ${esc(sc.goal)}</p>
+    <div id="cons"></div>
+    <div class="stack">
+      <div class="stepper"><label for="rAp">Aperture</label><input type="range" id="rAp" min="0" max="${APS.length-1}" value="${G.ap}"><span class="v" id="vAp"></span></div>
+      <div class="stepper"><label for="rTv">Shutter</label><input type="range" id="rTv" min="0" max="${TVS.length-1}" value="${G.tv}"><span class="v" id="vTv"></span></div>
+      <div class="stepper"><label for="rIso">ISO</label><input type="range" id="rIso" min="0" max="${ISOS.length-1}" value="${G.iso}"><span class="v" id="vIso"></span></div>
+    </div>
+    <div id="dres"></div></div>`,`<span class="muted" id="dhint">Balance the meter, then meet every goal.</span><button class="btn" data-a="dshoot" id="dbtn">Take photo</button>`));
+  ['rAp','rTv','rIso'].forEach(id=>$('#'+id).addEventListener('input',e=>{G[{rAp:'ap',rTv:'tv',rIso:'iso'}[id]]=+e.target.value;updDial()}));
+  updDial();
+}
+function dialVals(){return [APS[G.ap],TVS[G.tv][0],ISOS[G.iso]]}
+function updDial(){
+  const sc=SC[G.s],[n,t,i]=dialVals();
+  $('#vAp').textContent='f/'+n;$('#vTv').textContent=TVS[G.tv][1];$('#vIso').textContent=i;
+  const over=sc.ev-evOf(n,t,i);G.over=over;
+  const f=clamp(Math.pow(2,over*.6),.1,4);
+  $('#pv').style.filter=`brightness(${f.toFixed(2)}) contrast(${over>1.5?.8:1})`;
+  $('#lBg').style.filter=`blur(${Math.max(0,(8-n)*.8).toFixed(1)}px)`;
+  let fb=0;
+  if(sc.mv===1)fb=Math.max(0,Math.log2(t*250))*1.8;
+  if(sc.mv===2)fb=t<=1/60?0:Math.min(6,Math.log2(t*60)*.9);
+  $('#lFg').style.filter=`blur(${fb.toFixed(1)}px)`;
+  $('#grain').style.opacity=clamp(Math.log2(i/100)/6*.55,0,.6);
+  $('#mi').style.left=(clamp(over,-3,3)+3)/6*100+'%';
+  $('#mlab').textContent=Math.abs(over)<=.67?'Balanced':(over>0?'+':'')+over.toFixed(1)+' stops';
+  $('#cons').innerHTML=sc.cons.map(c=>{const ok=c[1](n,t,i);return `<div class="goalrow ${ok?'ok':'no'}">${ico(ok?'check':'x')}<span>${c[0]}</span></div>`}).join('');
+}
+function shootDial(){
+  const sc=SC[G.s],[n,t,i]=dialVals();G.tries++;
+  const okE=Math.abs(G.over)<=.67,fails=sc.cons.filter(c=>!c[1](n,t,i)).map(c=>c[0]);
+  let msg,good=false;
+  if(okE&&!fails.length){good=true;msg='Great shot. The exposure is balanced and every goal is met.'}
+  else if(!okE)msg=(G.over>0?'Too bright by ':'Too dark by ')+Math.abs(G.over).toFixed(1)+' stops. Use the other two settings to rebalance without breaking a goal.';
+  else msg='The exposure is right but a goal is missed: '+fails.join(', ')+'.';
+  if(good){G.pass.push(G.tries===1?2:1)}
+  $('#dres').innerHTML=`<div class="banner" style="${good?'background:var(--good-bg);border-color:var(--good)':'background:var(--bad-bg);border-color:var(--bad)'}">${esc(msg)}</div>`;
+  if(good){const b=$('#dbtn');b.textContent=G.s===SC.length-1?'Finish':'Next scene';b.dataset.a='dnext'}
+}
+function nextDial(){
+  if(G.s>=SC.length-1){const sum=G.pass.reduce((a,b)=>a+b,0);gameDone('dial','Dial It In','All scenes done',sum,Math.min(15,sum*2));return}
+  G.s++;G.tries=0;drawDial();
+}
+
+/* --- Frame It --- */
+const FR=[
+ {k:'tree',txt:'Place the lone tree where it makes the strongest picture.',hint:'Subjects sit best on a power point.',tg:[[100,66.7],[200,66.7],[100,133.3],[200,133.3]]},
+ {k:'hor',txt:'The sky is full of dramatic clouds. Position the horizon.',hint:'Give the sky two thirds: horizon on the lower line.',ty:133.3,sky:'storm'},
+ {k:'light',txt:'The lighthouse beam points to the right. Place it.',hint:'Leave looking room on the right, so keep it on the left side.',tg:[[100,66.7],[100,133.3]]},
+ {k:'hor',txt:'Bright wildflowers fill the foreground. Position the horizon.',hint:'Give the foreground two thirds: horizon on the upper line.',ty:66.7,sky:'calm'},
+ {k:'sun',txt:'Place the setting sun.',hint:'Again, a power point beats the dead centre.',tg:[[100,66.7],[200,66.7],[100,133.3],[200,133.3]]}];
+function startFrame(){G={g:'frame',r:0,pos:[150,100],hy:100,shot:false,scores:[]};drawFrame()}
+function frameSvg(){
+  const r=FR[G.r];let h='<defs><linearGradient id="fs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+(r.sky==='storm'?'#8c9fb3':'#8fd0f7')+'"/><stop offset="1" stop-color="'+(r.sky==='storm'?'#cfd9e3':'#e3f4fd')+'"/></linearGradient></defs>';
+  if(r.k==='hor'){
+    const y=G.hy;
+    h+=`<rect width="300" height="200" fill="url(#fs)"/>`;
+    if(r.sky==='storm')h+='<g fill="#5f7184" opacity=".7"><ellipse cx="70" cy="30" rx="60" ry="18"/><ellipse cx="190" cy="48" rx="70" ry="20"/><ellipse cx="250" cy="20" rx="40" ry="14"/></g>';
+    h+=`<rect y="${y}" width="300" height="${200-y}" fill="${r.sky==='storm'?'#4f7a58':'#5fa05a'}"/><path d="M0 ${y}h300" stroke="#fff" stroke-opacity=".6" stroke-width="2"/>`;
+    if(r.sky==='calm')for(let i=0;i<14;i++)h+=`<circle cx="${14+i*21}" cy="${Math.min(190,y+20+(i*37)%(Math.max(10,190-y-20)))}" r="4" fill="${['#f2a1c0','#ffd25a','#ffffff'][i%3]}"/>`;
+    return h;
+  }
+  h+=`<rect width="300" height="200" fill="url(#fs)"/><rect y="140" width="300" height="60" fill="${r.k==='sun'?'#3f7fa8':'#5fa05a'}"/>`;
+  const [x,y]=G.pos;
+  if(r.k==='tree')h+=`<g id="subj" transform="translate(${x},${y})"><rect x="-4" y="6" width="8" height="30" fill="#6b4a2f"/><circle r="22" fill="#3f9b57"/></g>`;
+  if(r.k==='light')h+=`<g id="subj" transform="translate(${x},${y})"><path d="M-10 36L-6 -18h12l4 54z" fill="#f4f4f4" stroke="#d65a4f" stroke-width="2"/><path d="M-8 4h16M-9 18h18" stroke="#d65a4f" stroke-width="5"/><rect x="-8" y="-28" width="16" height="10" fill="#ffd25a"/><path d="M8 -23l30 -8v16z" fill="#ffd25a" opacity=".6"/></g>`;
+  if(r.k==='sun')h+=`<g id="subj" transform="translate(${x},${y})"><circle r="26" fill="#ffd25a" opacity=".35"/><circle r="15" fill="#ffd25a"/></g>`;
+  return h;
+}
+function drawFrame(){
+  const r=FR[G.r];
+  openGame(gameShell('Frame It',`<div class="stack"><div class="row"><span class="pill">Round ${G.r+1} of ${FR.length}</span><p class="grow">${esc(r.txt)}</p></div>
+   <svg id="fsvg" class="fsvg" viewBox="0 0 300 200" role="img" aria-label="Frame to compose. Drag to place the ${r.k==='hor'?'horizon':'subject'}.">${frameSvg()}<g id="ovl"></g></svg>
+   <div id="fres" class="muted">Drag ${r.k==='hor'?'the horizon':'the subject'} into place, then take the shot.</div></div>`,`<span></span><button class="btn" id="fbtn" data-a="fshoot">Take photo</button>`));
+  const svg=$('#fsvg');let drag=false;
+  const pt=e=>{const b=svg.getBoundingClientRect();return [clamp((e.clientX-b.left)/b.width*300,10,290),clamp((e.clientY-b.top)/b.height*200,10,190)]};
+  const move=e=>{if(!drag||G.shot)return;const [x,y]=pt(e);if(r.k==='hor'){G.hy=clamp(y,20,180)}else{G.pos=[x,y]}
+    svg.innerHTML=frameSvg()+'<g id="ovl"></g>'};
+  svg.addEventListener('pointerdown',e=>{if(G.shot)return;drag=true;svg.setPointerCapture(e.pointerId);move(e)});
+  svg.addEventListener('pointermove',move);
+  svg.addEventListener('pointerup',()=>drag=false);svg.addEventListener('pointercancel',()=>drag=false);
+}
+function shootFrame(){
+  const r=FR[G.r];G.shot=true;let d;
+  if(r.k==='hor')d=Math.abs(G.hy-r.ty);else d=Math.min(...r.tg.map(t=>Math.hypot(G.pos[0]-t[0],G.pos[1]-t[1])));
+  const sc=Math.round(clamp(100-d*1.6,0,100));G.scores.push(sc);
+  const grid='<path d="M100 0v200M200 0v200M0 66.7h300M0 133.3h300" stroke="#fff" stroke-width="1.5" stroke-dasharray="5 4" opacity=".9"/>';
+  const tg=r.k==='hor'?`<path d="M0 ${r.ty}h300" stroke="#F4B23C" stroke-width="3"/>`:r.tg.map(t=>`<circle cx="${t[0]}" cy="${t[1]}" r="6" fill="none" stroke="#F4B23C" stroke-width="3"/>`).join('');
+  $('#ovl').innerHTML=grid+tg;
+  $('#fres').innerHTML=`<b style="font-size:1.1rem;color:var(--ink)">${sc>=85?'Spot on':sc>=60?'Close':'Try the grid'}: ${sc} points.</b> ${esc(r.hint)}`;
+  const b=$('#fbtn');b.textContent=G.r===FR.length-1?'Finish':'Next round';b.dataset.a='fnext';
+}
+function nextFrame(){
+  if(G.r>=FR.length-1){const tot=G.scores.reduce((a,b)=>a+b,0);gameDone('frame','Frame It',tot+' of 500',tot,Math.round(tot/50));return}
+  G.r++;G.shot=false;G.pos=[150,100];G.hy=100;drawFrame();
+}
+
+/* --- Speed Round --- */
+function startSpeed(){
+  G={g:'speed',q:shuffle(SPEED),i:0,ok:0,t0:Date.now(),fb:null,end:false};
+  drawSpeed();
+  G.tm=setInterval(()=>{const left=45-(Date.now()-G.t0)/1000;const b=$('#tbar');if(b)b.style.width=Math.max(0,left/45*100)+'%';const c=$('#tleft');if(c)c.textContent=Math.max(0,Math.ceil(left))+' s';if(left<=0)endSpeed()},200);
+}
+function drawSpeed(){
+  const q=G.q[G.i%G.q.length];
+  openGame(gameShell('Speed Round',`<div class="stack"><div class="row"><div class="timer grow"><i id="tbar"></i></div><b class="disp" id="tleft">45 s</b></div><div class="row"><span class="pill">Correct ${G.ok}</span></div><div class="card" style="min-height:130px;display:grid;place-items:center;text-align:center"><h2>${esc(q[0])}</h2></div><div class="tfbig"><button class="btn" data-a="sp" data-v="1">True</button><button class="btn ghost" data-a="sp" data-v="0">False</button></div><div id="sfb" class="muted" style="min-height:1.5em;text-align:center">${G.fb||''}</div></div>`,''));
+}
+function answerSpeed(v){
+  if(G.end)return;const q=G.q[G.i%G.q.length];const good=(v===1)===q[1];
+  if(good)G.ok++;G.fb=good?'Correct':'Not this time. It was '+(q[1]?'true':'false')+'.';G.i++;drawSpeed();
+  const left=45-(Date.now()-G.t0)/1000;const b=$('#tbar');if(b)b.style.width=Math.max(0,left/45*100)+'%';
+}
+function endSpeed(){if(G.end)return;G.end=true;clearInterval(G.tm);gameDone('speed','Speed Round',G.ok+' correct',G.ok,Math.min(10,Math.floor(G.ok/2)))}
+
+/* ================= spots ================= */
+function solar(y,m,d,lat,lng){
+  const doy=Math.floor((Date.UTC(y,m-1,d)-Date.UTC(y,0,0))/864e5),g=2*Math.PI/365*(doy-1),rad=Math.PI/180;
+  const eqt=229.18*(.000075+.001868*Math.cos(g)-.032077*Math.sin(g)-.014615*Math.cos(2*g)-.040849*Math.sin(2*g));
+  const dec=.006918-.399912*Math.cos(g)+.070257*Math.sin(g)-.006758*Math.cos(2*g)+.000907*Math.sin(2*g)-.002697*Math.cos(3*g)+.00148*Math.sin(3*g);
+  const noon=720-4*lng-eqt;
+  const at=e=>{const c=(Math.sin(e*rad)-Math.sin(lat*rad)*Math.sin(dec))/(Math.cos(lat*rad)*Math.cos(dec));if(c>1||c<-1)return null;const H=Math.acos(c)/rad;return [noon-4*H,noon+4*H]};
+  return {noon,at};
+}
+function initPlanner(){
+  const sel=$('#cityPick');
+  sel.innerHTML=CITIES.map((c,i)=>`<option value="${i}">${esc(c.n)}</option>`).join('')+'<option value="custom">Custom coordinates</option>';
+  let tz='';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone}catch(e){}
+  const mi=CITIES.findIndex(c=>c.tz===tz);
+  sel.value=String(mi>=0?mi:0);
+  $('#dateIn').value=todayKey();
+  ['cityPick','dateIn','latIn','lngIn'].forEach(id=>$('#'+id).addEventListener('input',()=>{document.querySelectorAll('.cust').forEach(e=>e.hidden=$('#cityPick').value!=='custom');renderSun()}));
+}
+function renderSun(){
+  const out=$('#sunOut');if(!out)return;
+  const sel=$('#cityPick').value;let lat,lng,tz;
+  if(sel==='custom'){lat=parseFloat($('#latIn').value);lng=parseFloat($('#lngIn').value)}
+  else{const c=CITIES[+sel];lat=c.lat;lng=c.lng;tz=c.tz}
+  const dv=$('#dateIn').value;
+  if(!dv||!finite(lat)||!finite(lng)||Math.abs(lat)>90||Math.abs(lng)>180){out.innerHTML='<p class="muted">Enter a latitude from -90 to 90 and a longitude from -180 to 180.</p>';return}
+  const [y,m,d]=dv.split('-').map(Number);
+  const s=solar(y,m,d,lat,lng),base=Date.UTC(y,m-1,d);
+  let f1,f2;try{f1=new Intl.DateTimeFormat([],{hour:'numeric',minute:'2-digit',timeZone:tz});f2=new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZone:tz})}catch(e){f1=new Intl.DateTimeFormat([],{hour:'numeric',minute:'2-digit'});f2=new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',hourCycle:'h23'})}
+  const T=min=>new Date(base+min*60000),fm=min=>f1.format(T(min));
+  const lm=min=>{const p=f2.formatToParts(T(min));return (+p.find(x=>x.type==='hour').value)*60+(+p.find(x=>x.type==='minute').value)};
+  const a8=s.at(-8),a4=s.at(-4),a0=s.at(-.833),a6=s.at(6);
+  if(!a8||!a4||!a0||!a6){out.innerHTML='<p class="muted">At this latitude the sun does not reach every angle on this date, so the windows are not available.</p>';return}
+  const rows=[['Blue hour (morning)',a8[0],a4[0],'var(--c-blue)'],['Golden hour (morning)',a4[0],a6[0],'var(--c-gold)'],['Sunrise',a0[0],null,'var(--c-day)'],['Sunset',a0[1],null,'var(--c-day)'],['Golden hour (evening)',a6[1],a4[1],'var(--c-gold)'],['Blue hour (evening)',a4[1],a8[1],'var(--c-blue)']];
+  const order=[...rows].sort((p,q)=>p[1]-q[1]);
+  const pts=[lm(a8[0]),lm(a4[0]),lm(a6[0]),lm(a6[1]),lm(a4[1]),lm(a8[1])];
+  let bar='';
+  if(pts.every((v,i)=>i===0||v>pts[i-1])){
+    const pc=pts.map(v=>(v/1440*100).toFixed(1));
+    bar=`<div class="sunbar" style="background:linear-gradient(90deg,var(--c-night) 0 ${pc[0]}%,var(--c-blue) ${pc[0]}% ${pc[1]}%,var(--c-gold) ${pc[1]}% ${pc[2]}%,var(--c-day) ${pc[2]}% ${pc[3]}%,var(--c-gold) ${pc[3]}% ${pc[4]}%,var(--c-blue) ${pc[4]}% ${pc[5]}%,var(--c-night) ${pc[5]}% 100%)" role="img" aria-label="Daylight timeline from midnight to midnight"></div><div class="row" style="justify-content:space-between;font-size:.8rem"><span class="muted">12 am</span><span class="muted">6 am</span><span class="muted">12 pm</span><span class="muted">6 pm</span><span class="muted">12 am</span></div>`;
+  }
+  out.innerHTML=bar+`<div class="sun-list">${order.map(r=>`<div class="sun-row"><span class="sw" style="background:${r[3]}"></span><span class="grow">${r[0]}</span><b>${fm(r[1])}${r[2]!=null?' to '+fm(r[2]):''}</b></div>`).join('')}</div><p class="muted" style="margin-top:10px">Times are in ${tz?esc(tz.replace('_',' ')):'your device time zone'}. Golden hour here means the sun is between 4 degrees below and 6 degrees above the horizon.</p>`;
+}
+function renderMissions(){
+  $('#placeChips').innerHTML=MISSIONS.map((m,i)=>`<button data-a="place" data-i="${i}" class="${S.place===i?'on':''}">${m.p}</button>`).join('');
+  $('#missionOut').innerHTML=MISSIONS[S.place].items.map(it=>{const on=!!S.prog.missions[it[0]];return `<div class="mis"><button class="cb ${on?'on':''}" data-a="mission" data-id="${it[0]}" role="checkbox" aria-checked="${on}" aria-label="Mark ${esc(it[1])} done">${ico('check')}</button><div class="grow"><h3 style="font-size:1rem">${esc(it[1])}</h3><p class="muted">${esc(it[2])}</p></div><span class="pill">+${it[3]} XP</span></div>`}).join('');
+}
+function renderSpots(){
+  const mine=S.db&&S.me.id?S.mySpots:S.localSpots;
+  const fr=[];Object.keys(S.friendSpots).forEach(id=>S.friendSpots[id].forEach(s=>fr.push(Object.assign({},s,{o:id}))));
+  const card=(s,own)=>`<div class="spot"><div class="row wrap"><h3 class="grow">${esc(s.name)}</h3><span class="pill">${esc(s.type)}</span><span class="pill">${esc(s.when)}</span></div>${s.note?`<p>${esc(s.note)}</p>`:''}<div class="row wrap">${own?'':`<span class="muted">Shared by ${esc(nameOf(s.o))}</span>`}${finite(s.lat)&&finite(s.lng)?`<button class="btn sm ghost" data-a="spotsun" data-lat="${s.lat}" data-lng="${s.lng}">Light here</button>`:''}${own?`<button class="btn sm ghost" data-a="delspot" data-id="${esc(s.id)}" aria-label="Delete ${esc(s.name)}">${ico('trash')}</button>`:''}</div></div>`;
+  const h=(mine.length?mine.map(s=>card(s,true)).join(''):'<div class="empty">'+MASCOT.replace('width="120" height="120"','width="72" height="72"')+'<p>No spots yet. Save the first place you want to shoot.</p></div>')+(fr.length?`<h3 style="margin-top:14px">From friends</h3>${fr.map(s=>card(s,false)).join('')}`:'');
+  $('#spotList').innerHTML=h;
+}
+async function addSpot(e){
+  e.preventDefault();
+  const lat=parseFloat($('#spLat').value),lng=parseFloat($('#spLng').value);
+  const s={name:$('#spName').value.trim().slice(0,60),type:$('#spType').value,when:$('#spWhen').value,note:$('#spNote').value.trim().slice(0,240),created:Date.now()};
+  if(!s.name)return;
+  if(finite(lat)&&finite(lng)&&Math.abs(lat)<=90&&Math.abs(lng)<=180){s.lat=lat;s.lng=lng}
+  if(S.db&&S.me.id&&S.canWrite){try{await S.db.collection('spots/'+S.me.id+'/items').add(s)}catch(err){toast('Could not save the spot. Try again.');return}}
+  else{s.id='l'+Date.now();S.localSpots.unshift(s);try{localStorage.setItem(LS+'.sp',JSON.stringify(S.localSpots))}catch(x){};renderSpots()}
+  $('#spotForm').reset();toast('Spot saved');renderSpots();checkBadgeToast();
+}
+
+/* ================= gallery ================= */
+function renderGallery(){
+  $('#gtMine').classList.toggle('on',S.galTab==='mine');$('#gtFriends').classList.toggle('on',S.galTab==='friends');
+  let list;
+  if(S.galTab==='mine')list=(S.db&&S.me.id?S.myPhotos:S.localPhotos).map(p=>Object.assign({},p,{o:S.me.id||'me'}));
+  else{list=[];Object.keys(S.friendPhotos).forEach(id=>S.friendPhotos[id].forEach(p=>list.push(Object.assign({},p,{o:id}))));list.sort((a,b)=>(b.created||0)-(a.created||0))}
+  list=list.filter(p=>validImg(p.img));
+  if(!list.length){
+    $('#galGrid').innerHTML=`<div class="card empty">${MASCOT.replace('width="120" height="120"','width="84" height="84"')}<h3>${S.galTab==='mine'?'Your gallery is empty':'No photos from friends yet'}</h3><p>${S.galTab==='mine'?'Add a photo you took while practising. You can ask for coaching on it.':'When friends add photos they show up here.'}</p>${S.galTab==='mine'?'<button class="btn" data-a="addphoto">Add your first photo</button>':''}</div>`;return;
+  }
+  $('#galGrid').innerHTML=`<div class="gal">${list.map(p=>`<button class="ph" data-a="photo" data-o="${esc(p.o)}" data-id="${esc(p.id)}"><img src="${p.img}" alt="${esc(p.title||'Photo')}" loading="lazy"><span class="cap">${esc(p.title||'Untitled')}${S.galTab==='friends'?'<br>'+esc(nameOf(p.o)):''}</span></button>`).join('')}</div>`;
+}
+function openModal(h){const m=$('#modal');m.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${h}</div>`;m.hidden=false}
+function closeModal(){$('#modal').hidden=true;$('#modal').innerHTML='';fbCtl&&fbCtl.abort();fbCtl=null}
+let newPhoto=null;
+function addPhotoSheet(){
+  newPhoto=null;
+  openModal(`<div class="row"><h2 class="grow">Add a photo</h2><button class="x" data-a="mclose" aria-label="Close">${ico('x')}</button></div>
+   <label class="f">Choose a picture<input type="file" id="phFile" accept="image/*"></label>
+   <div id="phPrev"></div>
+   <label class="f">Title<input type="text" id="phTitle" maxlength="60" placeholder="Morning light"></label>
+   <label class="f">What were you practising?<select id="phTag">${TAGS.map(t=>`<option>${t}</option>`).join('')}</select></label>
+   <label class="f">Caption<textarea id="phCap" maxlength="200" placeholder="Settings, place or what you tried"></textarea></label>
+   <div class="row" style="justify-content:flex-end"><button class="btn ghost" data-a="mclose">Cancel</button><button class="btn" data-a="savephoto" id="phSave" disabled>Save photo</button></div>`);
+  $('#phFile').addEventListener('change',async e=>{
+    const f=e.target.files&&e.target.files[0];if(!f)return;
+    $('#phPrev').innerHTML='<p class="muted">Preparing picture...</p>';
+    try{newPhoto=await readImage(f);$('#phPrev').innerHTML=`<img class="big" src="${newPhoto.img}" alt="Preview">`;$('#phSave').disabled=false;if(!$('#phTitle').value)$('#phTitle').value=f.name.replace(/\.[^.]+$/,'').slice(0,60)}
+    catch(x){$('#phPrev').innerHTML='<p style="color:var(--bad)">That file could not be read as a picture. Try a JPG or PNG.</p>'}
+  });
+}
+function readImage(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onerror=()=>rej(new Error('read'));fr.onload=()=>{const im=new Image();im.onerror=()=>rej(new Error('decode'));im.onload=()=>{let max=960,q=.74,out='',w=0,h=0;for(let k=0;k<7;k++){const s=Math.min(1,max/Math.max(im.width,im.height));w=Math.round(im.width*s);h=Math.round(im.height*s);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);out=c.toDataURL('image/jpeg',q);if(out.length<170000)return res({img:out,w,h});max=Math.round(max*.8);q=Math.max(.5,q-.05)}rej(new Error('big'))};im.src=fr.result};fr.readAsDataURL(file)})}
+async function savePhoto(){
+  if(!newPhoto)return;const btn=$('#phSave');btn.disabled=true;
+  const p={title:$('#phTitle').value.trim().slice(0,60)||'Untitled',tag:$('#phTag').value,cap:$('#phCap').value.trim().slice(0,200),img:newPhoto.img,w:newPhoto.w,h:newPhoto.h,created:Date.now()};
+  if(S.db&&S.me.id&&S.canWrite){try{await S.db.collection('photos/'+S.me.id+'/items').add(p)}catch(e){btn.disabled=false;toast(e&&e.code==='quota_exceeded'?'The gallery is full.':'Could not save the photo.');return}}
+  else{
+    p.id='l'+Date.now();S.localPhotos.unshift(p);S.localPhotos=S.localPhotos.slice(0,6);
+    try{localStorage.setItem(LS+'.ph',JSON.stringify(S.localPhotos))}catch(e){S.localPhotos.shift();btn.disabled=false;toast('Not enough room in this browser to keep that photo.');return}
+  }
+  const first=!S.prog.firstPhoto;if(first){S.prog.firstPhoto=true;awardXp(15)}else save();
+  closeModal();S.galTab='mine';renderGallery();toast(first?'Photo added. +15 XP':'Photo added');
+}
+let fbCtl=null;
+function photoSheet(owner,id){
+  const mine=owner===(S.me.id||'me');
+  const src=mine?(S.db&&S.me.id?S.myPhotos:S.localPhotos):(S.friendPhotos[owner]||[]);
+  const p=src.find(x=>x.id===id);if(!p||!validImg(p.img))return;
+  const canFb=mine&&S.sample&&S.sampleImg;
+  openModal(`<div class="row"><h2 class="grow">${esc(p.title||'Untitled')}</h2><button class="x" data-a="mclose" aria-label="Close">${ico('x')}</button></div>
+   <img class="big" src="${p.img}" alt="${esc(p.title||'Photo')}">
+   <div class="row wrap"><span class="pill">${esc(p.tag||'Other')}</span>${mine?'':`<span class="muted">by ${esc(nameOf(owner))}</span>`}</div>
+   ${p.cap?`<p>${esc(p.cap)}</p>`:''}
+   <div id="fbOut"></div>
+   <div class="row wrap" style="justify-content:flex-end">${canFb?`<button class="btn" data-a="coach" data-id="${esc(p.id)}" id="coachBtn">Get coaching</button>`:''}${mine?`<button class="btn ghost danger" style="background:var(--surface);color:var(--bad);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)" data-a="delphoto" data-id="${esc(p.id)}" id="delBtn">Delete</button>`:''}</div>`);
+}
+function dataToBlob(u){const b=atob(u.split(',')[1]);const a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return new Blob([a],{type:'image/jpeg'})}
+async function coach(id){
+  const p=(S.db&&S.me.id?S.myPhotos:S.localPhotos).find(x=>x.id===id);if(!p)return;
+  const out=$('#fbOut'),btn=$('#coachBtn');btn.disabled=true;out.innerHTML='<div class="fb">Thinking...</div>';
+  fbCtl=new AbortController();
+  try{
+    const r=await S.sample(`You are a friendly photography coach inside a beginner learning app. Look at this photo. The student says they were practising: ${p.tag||'general'}. Reply in plain text with no markdown and under 90 words, in exactly three short parts labelled "What works:", "Try next:" and "Challenge:". Be specific to what you can see and encouraging.`,{images:[dataToBlob(p.img)],signal:fbCtl.signal,modelTier:'default',onText:({text})=>{out.innerHTML='<div class="fb"></div>';out.firstChild.textContent=text}});
+    out.innerHTML='<div class="fb"></div>';out.firstChild.textContent=r.text;
+  }catch(e){
+    const m={not_granted:'Coaching needs your permission to use Claude. Tap the button to try again.',rate_limited:'Too many requests right now. Try again in a minute.',cancelled:''}[e&&e.code];
+    out.innerHTML=(e&&e.text)?'<div class="fb"></div>':`<p class="muted">${esc(m!==undefined?m:'Coaching is not available right now.')}</p>`;
+    if(e&&e.text)out.firstChild.textContent=e.text;
+  }finally{if(btn)btn.disabled=false}
+}
+async function delPhoto(id){
+  const b=$('#delBtn');if(b&&!b.dataset.sure){b.dataset.sure='1';b.textContent='Tap again to delete';return}
+  if(S.db&&S.me.id&&S.canWrite){try{await S.db.doc('photos/'+S.me.id+'/items/'+id).delete()}catch(e){toast('Could not delete.');return}}
+  else{S.localPhotos=S.localPhotos.filter(x=>x.id!==id);try{localStorage.setItem(LS+'.ph',JSON.stringify(S.localPhotos))}catch(e){}}
+  closeModal();renderGallery();
+}
+
+/* ================= friends ================= */
+function resolve(ids){
+  if(!S.user||!ids.length)return;
+  S.user.profiles(ids).then(ps=>{for(const id of ids){if(ps[id])S.names[id]=ps[id]}renderFriends();renderRail();renderGallery();renderSpots()}).catch(()=>{});
+}
+function renderFriends(){
+  const out=$('#frBoard');if(!out)return;
+  const meId=S.me.id;
+  if(!meId||!S.db){
+    out.innerHTML=`<div class="empty">${MASCOT.replace('width="120" height="120"','width="84" height="84"')}<h3>Friends need an account</h3><p>Open this page while signed in to Claude to save progress to your account, add friends and see the leaderboard.</p></div>`;
+    $('#frReq').hidden=true;return;
+  }
+  const rows=boardRows();
+  out.innerHTML=`<h3 style="margin-bottom:6px">Weekly leaderboard</h3>${rows.map((r,i)=>{const p=r.p;return `<div class="pers"><span class="lb-n">${i+1}</span>${avatar(r.id)}<div class="grow"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.isMe?nameOf(r.id)+' (you)':nameOf(r.id))}</div><div class="muted" style="font-size:.85rem">${p?`Level ${lvl(p.xp||0)}, ${lvlName(p.xp||0)}, ${effStreak(p)} day streak`:'Has not started yet'}</div></div><span class="lb-xp">${r.xp} XP</span>${r.isMe?'':`<button class="btn sm ghost" data-a="unfriend" data-id="${esc(r.id)}" aria-label="Remove ${esc(nameOf(r.id))}">${ico('x')}</button>`}</div>`}).join('')}${S.prog.friends.length?'':'<p class="muted" style="margin-top:10px">Search above to add your first friend. Once you add people they show up here.</p>'}`;
+  const req=Object.keys(S.profiles).filter(id=>id!==meId&&Array.isArray(S.profiles[id].friends)&&S.profiles[id].friends.includes(meId)&&!S.prog.friends.includes(id));
+  const rq=$('#frReq');rq.hidden=!req.length;
+  if(req.length){rq.innerHTML=`<h3 style="margin-bottom:6px">Added you</h3>${req.map(id=>`<div class="pers">${avatar(id)}<div class="grow">${esc(nameOf(id))}</div><button class="btn sm" data-a="addfriend" data-id="${esc(id)}">Add back</button></div>`).join('')}`;resolve(req.filter(id=>!S.names[id]))}
+}
+let srT;
+async function friendSearch(){
+  const q=$('#frSearch').value.trim(),out=$('#frResults');
+  if(!S.user||!S.me.id||!S.db){out.innerHTML='<p class="muted">Sign in to Claude to search for people.</p>';return}
+  const hits=(await S.user.search(q)).filter(h=>h.id!==S.me.id);
+  hits.forEach(h=>S.names[h.id]=h);
+  if(!hits.length){out.innerHTML=q?'<p class="muted">No one found with that name.</p>':'';return}
+  out.innerHTML=hits.map(h=>`<div class="pers">${avatar(h.id)}<div class="grow">${esc(h.name||'Someone')}</div>${S.prog.friends.includes(h.id)?'<span class="pill">Friends</span>':`<button class="btn sm" data-a="addfriend" data-id="${esc(h.id)}">Add</button>`}</div>`).join('');
+}
+function addFriend(id){
+  if(!id||id===S.me.id||S.prog.friends.includes(id)||S.prog.friends.length>=60)return;
+  S.prog.friends.push(id);save();syncFriendSubs();renderFriends();renderRail();friendSearch();toast('Friend added');
+}
+function unfriend(id){S.prog.friends=S.prog.friends.filter(x=>x!==id);save();syncFriendSubs();renderFriends();renderRail()}
+function syncFriendSubs(){
+  if(!S.db)return;
+  const want=new Set(S.prog.friends);
+  for(const k of ['ph','sp'])for(const id of Object.keys(S.subs[k])){if(!want.has(id)){S.subs[k][id]();delete S.subs[k][id];delete (k==='ph'?S.friendPhotos:S.friendSpots)[id]}}
+  want.forEach(id=>{
+    if(!S.subs.ph[id])S.subs.ph[id]=S.db.collection('photos/'+id+'/items').orderBy('created','desc').limit(12).onSnapshot(sn=>{S.friendPhotos[id]=sn.docs.map(d=>Object.assign({id:d.id},d.data()));if(S.tab==='gallery')renderGallery()},()=>{});
+    if(!S.subs.sp[id])S.subs.sp[id]=S.db.collection('spots/'+id+'/items').orderBy('created','desc').limit(12).onSnapshot(sn=>{S.friendSpots[id]=sn.docs.map(d=>Object.assign({id:d.id},d.data()));if(S.tab==='spots')renderSpots()},()=>{});
+  });
+  resolve([...want].filter(id=>!S.names[id]));
+}
+
+/* ================= profile ================= */
+function badges(){
+  const p=S.prog,L=p.lessons,n=Object.values(L).filter(x=>x.done).length,mis=Object.keys(p.missions).length;
+  const myP=(S.db&&S.me.id?S.myPhotos:S.localPhotos).length;
+  return [
+   ['First lesson',n>=1,'camera'],['Exposure master',unitDone(0),'sun'],['Composer',unitDone(1),'image'],['Light reader',unitDone(2),'sun'],['Sharp focus',unitDone(3),'camera'],['Genre hopper',unitDone(5),'pin'],['Graduate',UNITS.every((u,i)=>unitDone(i)),'star'],
+   ['Perfectionist',Object.values(L).some(x=>x.stars===3),'star'],['3 day streak',Math.max(p.best,effStreak(p))>=3,'flame'],['7 day streak',Math.max(p.best,effStreak(p))>=7,'flame'],
+   ['Gamer',['dial','frame','speed'].every(g=>p.games[g]!=null),'games'],['Photographer',myP>0||!!p.firstPhoto,'image'],['Scout',(S.db&&S.me.id?S.mySpots:S.localSpots).length>0,'pin'],['Mission 5',mis>=5,'pin'],['Social',p.friends.length>0,'users']];
+}
+let lastBadges=null;
+function checkBadgeToast(){
+  const now=badges().filter(b=>b[1]).length;
+  if(lastBadges!==null&&now>lastBadges)toast('New badge earned');
+  lastBadges=now;
+}
+function renderProfile(){
+  const p=S.prog,n=Object.values(p.lessons).filter(x=>x.done).length,b=badges(),li=lvlInfo(p.xp);
+  const signed=!!S.me.id&&!!S.db;
+  $('#profOut').innerHTML=`
+   <div class="card row wrap"><span class="avatar" style="width:72px;height:72px">${S.me.avatarUrl?`<img src="${esc(S.me.avatarUrl)}" alt="">`:ico('user')}</span><div class="grow"><h2>${esc(S.me.name||'Photographer')}</h2><p class="muted">Level ${lvl(p.xp)}, ${lvlName(p.xp)}</p></div></div>
+   <div class="card stack"><div><div class="row"><b class="disp" style="font-size:1.2rem">Level ${li.L}</b><span class="muted grow">${esc(lvlName(p.xp))}</span><span class="muted">${li.have}/${li.need} XP to level ${li.L+1}</span></div><div class="bar" style="margin-top:8px;flex:none"><i style="width:${Math.max(3,li.pct)}%"></i></div></div><div class="stats"><div class="stat"><b>Total XP</b><span>${p.xp}</span></div><div class="stat"><b>Streak</b><span>${effStreak(p)}</span></div><div class="stat"><b>Best streak</b><span>${Math.max(p.best,effStreak(p))}</span></div><div class="stat"><b>Lessons</b><span>${n}/${LESSONS.length}</span></div></div></div>
+   <div class="card stack"><h3>Daily XP goal</h3><div class="goal-opts">${[10,20,30,50].map(g=>`<button class="btn sm ${p.goal===g?'':'ghost'}" data-a="goal" data-g="${g}">${g} XP</button>`).join('')}</div></div>
+   <div class="card stack"><h3>Badges</h3><div class="badges">${b.map(x=>`<div class="badge ${x[1]?'':'off'}"><span class="disc">${ico(x[2],x[2]==='flame'||x[2]==='star'?'fill':'')}</span>${esc(x[0])}</div>`).join('')}</div></div>
+   <div class="card stack"><h3>Account</h3><p>${signed?'You are signed in with your Claude account. Progress, photos and spots sync across your devices, and friends can see your name, level and weekly XP.':'You are not signed in here, so progress stays in this browser only. Open the page while signed in to Claude to sync and add friends.'}</p>
+   <div><button class="btn ghost danger" style="background:var(--surface);color:var(--bad);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)" data-a="reset" id="resetBtn">Reset my progress</button></div></div>`;
+}
+
+/* ================= events ================= */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-a]');if(!t)return;
+  const a=t.dataset.a;
+  switch(a){
+   case 'tab':setTab(t.dataset.t);break;
+   case 'lesson':startLesson(t.dataset.id);break;
+   case 'unlockunit':S.prog.unlocked=S.prog.unlocked||{};S.prog.unlocked[+t.dataset.u]=true;save();renderPath();toast('Unit unlocked');break;
+   case 'quit':closePlayer();break;
+   case 'donenext':{closePlayer();const nx=LESSONS.find(l=>!(S.prog.lessons[l.id]&&S.prog.lessons[l.id].done));if(nx)startLesson(nx.id);break}
+   case 'next':if(P)nextStep();break;
+   case 'pick':{const s=P.steps[P.i];P.sel=s.k==='tf'?(t.dataset.j==='true'):+t.dataset.j;drawPlayer();break}
+   case 'check':{const s=P.steps[P.i];let ok=false;
+     if(s.k==='mc')ok=P.opts[P.sel].c;else if(s.k==='tf')ok=P.sel===s.a;else if(s.k==='order')ok=P.ord.map(b=>P.bank[b].t).join('|')===s.i.join('|');
+     finishStep(ok);break}
+   case 'mpick':{
+     const side=t.dataset.s,j=+t.dataset.j,key=side+j;
+     if(P.pick===null||P.pick[0]===side){P.pick=key;P.bad=null;drawPlayer();break}
+     const other=+P.pick.slice(1);
+     if(other===j){P.ok[j]=true;P.pick=null;P.bad=null;
+       if(Object.keys(P.ok).length===P.steps[P.i].p.length){P.res='good';P.done++}
+       drawPlayer()}
+     else{P.bad=key;P.pick=null;if(!P.mm){P.mm=true;P.mistakes++}drawPlayer();setTimeout(()=>{if(P){P.bad=null;drawPlayer()}},500)}
+     break}
+   case 'ord':if(!P.ord.includes(+t.dataset.j)){P.ord.push(+t.dataset.j);drawPlayer()}break;
+   case 'unord':P.ord=P.ord.filter(b=>b!==+t.dataset.j);drawPlayer();break;
+   case 'game':{const g=t.dataset.g;if(G&&G.tm)clearInterval(G.tm);g==='dial'?startDial():g==='frame'?startFrame():startSpeed();break}
+   case 'gquit':if(G&&G.tm)clearInterval(G.tm);closeGame();break;
+   case 'dshoot':shootDial();break;case 'dnext':nextDial();break;
+   case 'fshoot':shootFrame();break;case 'fnext':nextFrame();break;
+   case 'sp':answerSpeed(+t.dataset.v);break;
+   case 'place':S.place=+t.dataset.i;renderMissions();break;
+   case 'mission':{const id=t.dataset.id;const it=MISSIONS.flatMap(m=>m.items).find(x=>x[0]===id);
+     if(S.prog.missions[id]){delete S.prog.missions[id];save()}else{S.prog.missions[id]=true;awardXp(it?it[3]:5);toast('Mission done. +'+(it?it[3]:5)+' XP');checkBadgeToast()}
+     renderMissions();break}
+   case 'spotsun':{$('#cityPick').value='custom';document.querySelectorAll('.cust').forEach(x=>x.hidden=false);$('#latIn').value=t.dataset.lat;$('#lngIn').value=t.dataset.lng;renderSun();$('#sunCard').scrollIntoView({behavior:'smooth'});break}
+   case 'delspot':{const id=t.dataset.id;
+     if(S.db&&S.me.id&&S.canWrite)S.db.doc('spots/'+S.me.id+'/items/'+id).delete().catch(()=>toast('Could not delete.'));
+     else{S.localSpots=S.localSpots.filter(x=>x.id!==id);try{localStorage.setItem(LS+'.sp',JSON.stringify(S.localSpots))}catch(x){}renderSpots()}break}
+   case 'addphoto':addPhotoSheet();break;
+   case 'savephoto':savePhoto();break;
+   case 'mclose':closeModal();break;
+   case 'galtab':S.galTab=t.dataset.t;renderGallery();break;
+   case 'photo':photoSheet(t.dataset.o,t.dataset.id);break;
+   case 'coach':coach(t.dataset.id);break;
+   case 'delphoto':delPhoto(t.dataset.id);break;
+   case 'addfriend':addFriend(t.dataset.id);break;
+   case 'unfriend':unfriend(t.dataset.id);break;
+   case 'goal':S.prog.goal=+t.dataset.g;save();renderProfile();break;
+   case 'reset':{if(!t.dataset.sure){t.dataset.sure='1';t.textContent='Tap again to reset everything';break}
+     const f=S.prog.friends;S.prog=Object.assign(blank(),{friends:f});save();renderProfile();renderChips();toast('Progress reset');break}
+  }
+});
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){if(!$('#modal').hidden)closeModal()}
+  if(P&&!$('#player').hidden&&!P.fin){
+    if(e.key==='Enter'){const b=$('#player .ov-foot .btn:not([disabled])');if(b)b.click()}
+    const s=P.steps[P.i];
+    if(/^[1-4]$/.test(e.key)&&(s.k==='mc'||s.k==='tf')&&!P.res){const b=$$$('#player .opt')[+e.key-1];if(b)b.click()}
+  }
+});
+function $$$(s){return Array.from(document.querySelectorAll(s))}
+$('#frSearch').addEventListener('input',()=>{clearTimeout(srT);srT=setTimeout(friendSearch,250)});
+$('#frSearch').addEventListener('focus',()=>{if(!$('#frSearch').value)friendSearch()});
+$('#spotForm').addEventListener('submit',addSpot);
+
+/* ================= boot ================= */
+renderNav();renderChips();renderBanner();initPlanner();setTab('learn');
+checkBadgeToast();
+(async()=>{
+  if(!window.claude||!window.claude.use)return;
+  const get=n=>window.claude.use(n).catch(()=>null);
+  const [user,db,sample]=await Promise.all([get('user'),get('db'),get('sample')]);
+  S.user=user;S.db=db;S.sample=sample;
+  if(sample){try{const lim=await sample.limits();S.sampleImg=!!(lim&&lim.images)}catch(e){S.sampleImg=false}}
+  if(user){try{const me=await user.me();S.me={id:me.id,name:me.name||'',avatarUrl:me.avatarUrl||'',color:me.color||''}}catch(e){}}
+  if(user){try{const cw=await user.can('data.write');if(cw===false){S.canWrite=false}}catch(e){}}
+  renderChips();renderBanner();
+  if(!db||!S.me.id){renderFriends();return}
+  const id=S.me.id;
+  db.collection('profiles').onSnapshot(sn=>{
+    const m={};sn.docs.forEach(d=>m[d.id]=d.data());S.profiles=m;
+    if(!S.adopted){
+      S.adopted=true;const r=m[id];
+      if(r&&(r.updated||0)>(S.prog.updated||0)){S.prog=Object.assign(blank(),JSON.parse(JSON.stringify(r)));saveLocal();syncFriendSubs();renderChips();renderPath();renderRail();checkBadgeToast()}
+      else{syncFriendSubs();flush()}
+    }
+    renderFriends();renderRail();
+  },()=>{});
+  db.collection('photos/'+id+'/items').orderBy('created','desc').limit(60).onSnapshot(sn=>{S.myPhotos=sn.docs.map(d=>Object.assign({id:d.id},d.data()));if(S.tab==='gallery')renderGallery()},()=>{});
+  db.collection('spots/'+id+'/items').orderBy('created','desc').limit(60).onSnapshot(sn=>{S.mySpots=sn.docs.map(d=>Object.assign({id:d.id},d.data()));if(S.tab==='spots')renderSpots()},()=>{});
+  resolve([id]);
+  if(S.tab==='gallery')renderGallery();
+})();
+})();
+</script>
+
+</body></html>
